@@ -1,0 +1,1482 @@
+[2026年 04月 26日 星期日 20:07:09 CST] Resuming from checkpoint: ppg_output/checkpoint-100
+[2026年 04月 26日 星期日 20:07:09 CST] Starting training (restart #0)...
+Resuming training from checkpoint: ppg_output/checkpoint-100
+2026-04-26 20:07:13,089 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Loading non-time-aware dataset...
+2026-04-26 20:07:13,089 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Processing dataset to fixed-size sub-sequences...
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+2026-04-26 20:07:13,090 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Set global_batch_size to 52
+2026-04-26 20:07:13,090 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Set micro_batch_size to 52
+2026-04-26 20:07:13,090 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Set gradient_accumulation_steps to 1
+2026-04-26 20:07:13,090 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Set precision to bf16
+2026-04-26 20:07:13,090 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Set normalization to zero
+2026-04-26 20:07:13,222 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Use Eager Attention
+2026-04-26 20:07:13,441 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Load model parameters from: ppg_output/checkpoint-100
+2026-04-26 20:07:13,443 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: {'max_length': 1024, 'data_path': 'ppg_full', 'normalization_method': 'zero', 'attn_implementation': 'eager', 'micro_batch_size': 52, 'global_batch_size': 52, 'train_steps': None, 'num_train_epochs': 1.0, 'precision': 'bf16', 'evaluation_strategy': 'no', 'eval_steps': None, 'save_strategy': 'steps', 'save_steps': 100, 'learning_rate': 3e-05, 'min_learning_rate': 0, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_epsilon': 1e-08, 'lr_scheduler_type': 'cosine', 'warmup_ratio': 0.1, 'warmup_steps': 0, 'warmup_start_lr': 0.0001, 'weight_decay': 0.01, 'gradient_checkpointing': True, 'deepspeed': None, 'logging_steps': 10, 'max_grad_norm': 1.0, 'dataloader_num_workers': 8, 'save_only_model': True, 'save_total_limit': 5, 'time_aware_dataset': False, 'time_normalization_method': None, 'time_quantize_resolution': None, 'time_auto_quantize': False, 'data_sample_size': 1000, 'min_valid_history': 1, 'time_aware_rotary': False, 'time_scale': 1.0}
+2026-04-26 20:07:13,443 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: MIRATrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=True,
+bf16_full_eval=False,
+data_seed=9899,
+dataloader_drop_last=False,
+dataloader_num_workers=8,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=True,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=None,
+evaluation_strategy=IntervalStrategy.NO,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=1,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=3e-05,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=False,
+logging_dir=ppg_output/tb_logs,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.COSINE,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=None,
+min_learning_rate=0.0,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=1.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=ppg_output,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=104,
+per_device_train_batch_size=52,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=[],
+resume_from_checkpoint=None,
+run_name=ppg_output,
+save_on_each_node=False,
+save_only_model=True,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=5,
+seed=9899,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_start_lr=0.0001,
+warmup_steps=0,
+weight_decay=0.01,
+)
+2026-04-26 20:07:13,443 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: MIRAConfig {
+  "_name_or_path": "ppg_output/checkpoint-100",
+  "apply_aux_loss": true,
+  "architectures": [
+    "MIRAForPrediction"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "Maple728/TimeMoE-50M--configuration_time_moe.TimeMoeConfig",
+    "AutoModelForCausalLM": "Maple728/TimeMoE-50M--modeling_time_moe.TimeMoeForPrediction"
+  },
+  "gradient_checkpointing_kwargs": {
+    "use_reentrant": true
+  },
+  "hidden_act": "silu",
+  "hidden_size": 384,
+  "horizon_lengths": [
+    1
+  ],
+  "initializer_range": 0.02,
+  "input_size": 1,
+  "intermediate_size": 1536,
+  "max_position_embeddings": 4096,
+  "model_type": "mira",
+  "num_attention_heads": 12,
+  "num_experts": 8,
+  "num_experts_per_tok": 2,
+  "num_hidden_layers": 12,
+  "num_key_value_heads": 12,
+  "ode_activation_threshold": 1.0,
+  "ode_func_activation": "silu",
+  "ode_func_hidden_dims": [
+    128,
+    128
+  ],
+  "ode_func_use_time": true,
+  "ode_solver_atol": 1e-06,
+  "ode_solver_method": "dopri5",
+  "ode_solver_rtol": 1e-06,
+  "rms_norm_eps": 1e-06,
+  "rope_theta": 10000,
+  "router_aux_loss_factor": 0.02,
+  "tie_word_embeddings": false,
+  "time_aware_rotary": true,
+  "time_scale": 1.0,
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.1",
+  "use_cache": true,
+  "use_dense": false,
+  "use_terminal_ode": true
+}
+
+2026-04-26 20:07:13,443 - log_util.py[pid:76146;line:57:log_in_local_rank_0] - INFO: Number of the model parameters: 113.428M
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zjl/MIRA/main.py", line 113, in <module>
+[rank0]:     runner.train_model(
+[rank0]:   File "/home/zjl/MIRA/mira/runner.py", line 308, in train_model
+[rank0]:     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1888, in _inner_training_loop
+[rank0]:     train_dataloader = self.get_train_dataloader()
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 874, in get_train_dataloader
+[rank0]:     dataloader_params["sampler"] = self._get_train_sampler()
+[rank0]:                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 844, in _get_train_sampler
+[rank0]:     return RandomSampler(self.train_dataset)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/utils/data/sampler.py", line 143, in __init__
+[rank0]:     raise ValueError(f"num_samples should be a positive integer value, but got num_samples={self.num_samples}")
+[rank0]: ValueError: num_samples should be a positive integer value, but got num_samples=0
+E0426 20:07:15.738000 139777624117632 torch/distributed/elastic/multiprocessing/api.py:826] failed (exitcode: 1) local_rank: 0 (pid: 76146) of binary: /home/zjl/Jianlin/Anaconda3/bin/python
+Traceback (most recent call last):
+  File "/home/zjl/Jianlin/Anaconda3/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 879, in main
+    run(args)
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 870, in run
+    elastic_launch(
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 132, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 263, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-26_20:07:15
+  host      : zjl-Z390-AORUS-ELITE
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 76146)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2026年 04月 26日 星期日 20:07:15 CST] Training exited with code: 1
+[2026年 04月 26日 星期日 20:07:15 CST] Will restart in 5 seconds... (attempt 1/10)
+[2026年 04月 26日 星期日 20:07:20 CST] Resuming from checkpoint: ppg_output/checkpoint-100
+[2026年 04月 26日 星期日 20:07:20 CST] Starting training (restart #1)...
+Resuming training from checkpoint: ppg_output/checkpoint-100
+2026-04-26 20:07:24,240 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Loading non-time-aware dataset...
+2026-04-26 20:07:24,240 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Processing dataset to fixed-size sub-sequences...
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+2026-04-26 20:07:24,241 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Set global_batch_size to 52
+2026-04-26 20:07:24,241 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Set micro_batch_size to 52
+2026-04-26 20:07:24,241 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Set gradient_accumulation_steps to 1
+2026-04-26 20:07:24,241 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Set precision to bf16
+2026-04-26 20:07:24,241 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Set normalization to zero
+2026-04-26 20:07:24,362 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Use Eager Attention
+2026-04-26 20:07:24,540 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Load model parameters from: ppg_output/checkpoint-100
+2026-04-26 20:07:24,541 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: {'max_length': 1024, 'data_path': 'ppg_full', 'normalization_method': 'zero', 'attn_implementation': 'eager', 'micro_batch_size': 52, 'global_batch_size': 52, 'train_steps': None, 'num_train_epochs': 1.0, 'precision': 'bf16', 'evaluation_strategy': 'no', 'eval_steps': None, 'save_strategy': 'steps', 'save_steps': 100, 'learning_rate': 3e-05, 'min_learning_rate': 0, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_epsilon': 1e-08, 'lr_scheduler_type': 'cosine', 'warmup_ratio': 0.1, 'warmup_steps': 0, 'warmup_start_lr': 0.0001, 'weight_decay': 0.01, 'gradient_checkpointing': True, 'deepspeed': None, 'logging_steps': 10, 'max_grad_norm': 1.0, 'dataloader_num_workers': 8, 'save_only_model': True, 'save_total_limit': 5, 'time_aware_dataset': False, 'time_normalization_method': None, 'time_quantize_resolution': None, 'time_auto_quantize': False, 'data_sample_size': 1000, 'min_valid_history': 1, 'time_aware_rotary': False, 'time_scale': 1.0}
+2026-04-26 20:07:24,541 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: MIRATrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=True,
+bf16_full_eval=False,
+data_seed=9899,
+dataloader_drop_last=False,
+dataloader_num_workers=8,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=True,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=None,
+evaluation_strategy=IntervalStrategy.NO,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=1,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=3e-05,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=False,
+logging_dir=ppg_output/tb_logs,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.COSINE,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=None,
+min_learning_rate=0.0,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=1.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=ppg_output,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=104,
+per_device_train_batch_size=52,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=[],
+resume_from_checkpoint=None,
+run_name=ppg_output,
+save_on_each_node=False,
+save_only_model=True,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=5,
+seed=9899,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_start_lr=0.0001,
+warmup_steps=0,
+weight_decay=0.01,
+)
+2026-04-26 20:07:24,542 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: MIRAConfig {
+  "_name_or_path": "ppg_output/checkpoint-100",
+  "apply_aux_loss": true,
+  "architectures": [
+    "MIRAForPrediction"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "Maple728/TimeMoE-50M--configuration_time_moe.TimeMoeConfig",
+    "AutoModelForCausalLM": "Maple728/TimeMoE-50M--modeling_time_moe.TimeMoeForPrediction"
+  },
+  "gradient_checkpointing_kwargs": {
+    "use_reentrant": true
+  },
+  "hidden_act": "silu",
+  "hidden_size": 384,
+  "horizon_lengths": [
+    1
+  ],
+  "initializer_range": 0.02,
+  "input_size": 1,
+  "intermediate_size": 1536,
+  "max_position_embeddings": 4096,
+  "model_type": "mira",
+  "num_attention_heads": 12,
+  "num_experts": 8,
+  "num_experts_per_tok": 2,
+  "num_hidden_layers": 12,
+  "num_key_value_heads": 12,
+  "ode_activation_threshold": 1.0,
+  "ode_func_activation": "silu",
+  "ode_func_hidden_dims": [
+    128,
+    128
+  ],
+  "ode_func_use_time": true,
+  "ode_solver_atol": 1e-06,
+  "ode_solver_method": "dopri5",
+  "ode_solver_rtol": 1e-06,
+  "rms_norm_eps": 1e-06,
+  "rope_theta": 10000,
+  "router_aux_loss_factor": 0.02,
+  "tie_word_embeddings": false,
+  "time_aware_rotary": true,
+  "time_scale": 1.0,
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.1",
+  "use_cache": true,
+  "use_dense": false,
+  "use_terminal_ode": true
+}
+
+2026-04-26 20:07:24,542 - log_util.py[pid:76184;line:57:log_in_local_rank_0] - INFO: Number of the model parameters: 113.428M
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zjl/MIRA/main.py", line 113, in <module>
+[rank0]:     runner.train_model(
+[rank0]:   File "/home/zjl/MIRA/mira/runner.py", line 308, in train_model
+[rank0]:     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1888, in _inner_training_loop
+[rank0]:     train_dataloader = self.get_train_dataloader()
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 874, in get_train_dataloader
+[rank0]:     dataloader_params["sampler"] = self._get_train_sampler()
+[rank0]:                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 844, in _get_train_sampler
+[rank0]:     return RandomSampler(self.train_dataset)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/utils/data/sampler.py", line 143, in __init__
+[rank0]:     raise ValueError(f"num_samples should be a positive integer value, but got num_samples={self.num_samples}")
+[rank0]: ValueError: num_samples should be a positive integer value, but got num_samples=0
+E0426 20:07:26.886000 139786204725632 torch/distributed/elastic/multiprocessing/api.py:826] failed (exitcode: 1) local_rank: 0 (pid: 76184) of binary: /home/zjl/Jianlin/Anaconda3/bin/python
+Traceback (most recent call last):
+  File "/home/zjl/Jianlin/Anaconda3/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 879, in main
+    run(args)
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 870, in run
+    elastic_launch(
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 132, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 263, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-26_20:07:26
+  host      : zjl-Z390-AORUS-ELITE
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 76184)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2026年 04月 26日 星期日 20:07:27 CST] Training exited with code: 1
+[2026年 04月 26日 星期日 20:07:27 CST] Will restart in 5 seconds... (attempt 2/10)
+[2026年 04月 26日 星期日 20:07:32 CST] Resuming from checkpoint: ppg_output/checkpoint-100
+[2026年 04月 26日 星期日 20:07:32 CST] Starting training (restart #2)...
+Resuming training from checkpoint: ppg_output/checkpoint-100
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Loading non-time-aware dataset...
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Processing dataset to fixed-size sub-sequences...
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Set global_batch_size to 52
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Set micro_batch_size to 52
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Set gradient_accumulation_steps to 1
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Set precision to bf16
+2026-04-26 20:07:35,412 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Set normalization to zero
+2026-04-26 20:07:35,545 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Use Eager Attention
+2026-04-26 20:07:35,726 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Load model parameters from: ppg_output/checkpoint-100
+2026-04-26 20:07:35,727 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: {'max_length': 1024, 'data_path': 'ppg_full', 'normalization_method': 'zero', 'attn_implementation': 'eager', 'micro_batch_size': 52, 'global_batch_size': 52, 'train_steps': None, 'num_train_epochs': 1.0, 'precision': 'bf16', 'evaluation_strategy': 'no', 'eval_steps': None, 'save_strategy': 'steps', 'save_steps': 100, 'learning_rate': 3e-05, 'min_learning_rate': 0, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_epsilon': 1e-08, 'lr_scheduler_type': 'cosine', 'warmup_ratio': 0.1, 'warmup_steps': 0, 'warmup_start_lr': 0.0001, 'weight_decay': 0.01, 'gradient_checkpointing': True, 'deepspeed': None, 'logging_steps': 10, 'max_grad_norm': 1.0, 'dataloader_num_workers': 8, 'save_only_model': True, 'save_total_limit': 5, 'time_aware_dataset': False, 'time_normalization_method': None, 'time_quantize_resolution': None, 'time_auto_quantize': False, 'data_sample_size': 1000, 'min_valid_history': 1, 'time_aware_rotary': False, 'time_scale': 1.0}
+2026-04-26 20:07:35,728 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: MIRATrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=True,
+bf16_full_eval=False,
+data_seed=9899,
+dataloader_drop_last=False,
+dataloader_num_workers=8,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=True,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=None,
+evaluation_strategy=IntervalStrategy.NO,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=1,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=3e-05,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=False,
+logging_dir=ppg_output/tb_logs,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.COSINE,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=None,
+min_learning_rate=0.0,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=1.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=ppg_output,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=104,
+per_device_train_batch_size=52,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=[],
+resume_from_checkpoint=None,
+run_name=ppg_output,
+save_on_each_node=False,
+save_only_model=True,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=5,
+seed=9899,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_start_lr=0.0001,
+warmup_steps=0,
+weight_decay=0.01,
+)
+2026-04-26 20:07:35,728 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: MIRAConfig {
+  "_name_or_path": "ppg_output/checkpoint-100",
+  "apply_aux_loss": true,
+  "architectures": [
+    "MIRAForPrediction"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "Maple728/TimeMoE-50M--configuration_time_moe.TimeMoeConfig",
+    "AutoModelForCausalLM": "Maple728/TimeMoE-50M--modeling_time_moe.TimeMoeForPrediction"
+  },
+  "gradient_checkpointing_kwargs": {
+    "use_reentrant": true
+  },
+  "hidden_act": "silu",
+  "hidden_size": 384,
+  "horizon_lengths": [
+    1
+  ],
+  "initializer_range": 0.02,
+  "input_size": 1,
+  "intermediate_size": 1536,
+  "max_position_embeddings": 4096,
+  "model_type": "mira",
+  "num_attention_heads": 12,
+  "num_experts": 8,
+  "num_experts_per_tok": 2,
+  "num_hidden_layers": 12,
+  "num_key_value_heads": 12,
+  "ode_activation_threshold": 1.0,
+  "ode_func_activation": "silu",
+  "ode_func_hidden_dims": [
+    128,
+    128
+  ],
+  "ode_func_use_time": true,
+  "ode_solver_atol": 1e-06,
+  "ode_solver_method": "dopri5",
+  "ode_solver_rtol": 1e-06,
+  "rms_norm_eps": 1e-06,
+  "rope_theta": 10000,
+  "router_aux_loss_factor": 0.02,
+  "tie_word_embeddings": false,
+  "time_aware_rotary": true,
+  "time_scale": 1.0,
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.1",
+  "use_cache": true,
+  "use_dense": false,
+  "use_terminal_ode": true
+}
+
+2026-04-26 20:07:35,728 - log_util.py[pid:76232;line:57:log_in_local_rank_0] - INFO: Number of the model parameters: 113.428M
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zjl/MIRA/main.py", line 113, in <module>
+[rank0]:     runner.train_model(
+[rank0]:   File "/home/zjl/MIRA/mira/runner.py", line 308, in train_model
+[rank0]:     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1888, in _inner_training_loop
+[rank0]:     train_dataloader = self.get_train_dataloader()
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 874, in get_train_dataloader
+[rank0]:     dataloader_params["sampler"] = self._get_train_sampler()
+[rank0]:                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 844, in _get_train_sampler
+[rank0]:     return RandomSampler(self.train_dataset)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/utils/data/sampler.py", line 143, in __init__
+[rank0]:     raise ValueError(f"num_samples should be a positive integer value, but got num_samples={self.num_samples}")
+[rank0]: ValueError: num_samples should be a positive integer value, but got num_samples=0
+E0426 20:07:38.055000 140561432924544 torch/distributed/elastic/multiprocessing/api.py:826] failed (exitcode: 1) local_rank: 0 (pid: 76232) of binary: /home/zjl/Jianlin/Anaconda3/bin/python
+Traceback (most recent call last):
+  File "/home/zjl/Jianlin/Anaconda3/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 879, in main
+    run(args)
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 870, in run
+    elastic_launch(
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 132, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 263, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-26_20:07:38
+  host      : zjl-Z390-AORUS-ELITE
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 76232)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2026年 04月 26日 星期日 20:07:38 CST] Training exited with code: 1
+[2026年 04月 26日 星期日 20:07:38 CST] Will restart in 5 seconds... (attempt 3/10)
+[2026年 04月 26日 星期日 20:07:43 CST] Resuming from checkpoint: ppg_output/checkpoint-100
+[2026年 04月 26日 星期日 20:07:43 CST] Starting training (restart #3)...
+Resuming training from checkpoint: ppg_output/checkpoint-100
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Loading non-time-aware dataset...
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Processing dataset to fixed-size sub-sequences...
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Set global_batch_size to 52
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Set micro_batch_size to 52
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Set gradient_accumulation_steps to 1
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Set precision to bf16
+2026-04-26 20:07:46,556 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Set normalization to zero
+2026-04-26 20:07:46,694 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Use Eager Attention
+2026-04-26 20:07:46,877 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Load model parameters from: ppg_output/checkpoint-100
+2026-04-26 20:07:46,878 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: {'max_length': 1024, 'data_path': 'ppg_full', 'normalization_method': 'zero', 'attn_implementation': 'eager', 'micro_batch_size': 52, 'global_batch_size': 52, 'train_steps': None, 'num_train_epochs': 1.0, 'precision': 'bf16', 'evaluation_strategy': 'no', 'eval_steps': None, 'save_strategy': 'steps', 'save_steps': 100, 'learning_rate': 3e-05, 'min_learning_rate': 0, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_epsilon': 1e-08, 'lr_scheduler_type': 'cosine', 'warmup_ratio': 0.1, 'warmup_steps': 0, 'warmup_start_lr': 0.0001, 'weight_decay': 0.01, 'gradient_checkpointing': True, 'deepspeed': None, 'logging_steps': 10, 'max_grad_norm': 1.0, 'dataloader_num_workers': 8, 'save_only_model': True, 'save_total_limit': 5, 'time_aware_dataset': False, 'time_normalization_method': None, 'time_quantize_resolution': None, 'time_auto_quantize': False, 'data_sample_size': 1000, 'min_valid_history': 1, 'time_aware_rotary': False, 'time_scale': 1.0}
+2026-04-26 20:07:46,878 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: MIRATrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=True,
+bf16_full_eval=False,
+data_seed=9899,
+dataloader_drop_last=False,
+dataloader_num_workers=8,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=True,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=None,
+evaluation_strategy=IntervalStrategy.NO,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=1,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=3e-05,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=False,
+logging_dir=ppg_output/tb_logs,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.COSINE,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=None,
+min_learning_rate=0.0,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=1.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=ppg_output,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=104,
+per_device_train_batch_size=52,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=[],
+resume_from_checkpoint=None,
+run_name=ppg_output,
+save_on_each_node=False,
+save_only_model=True,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=5,
+seed=9899,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_start_lr=0.0001,
+warmup_steps=0,
+weight_decay=0.01,
+)
+2026-04-26 20:07:46,879 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: MIRAConfig {
+  "_name_or_path": "ppg_output/checkpoint-100",
+  "apply_aux_loss": true,
+  "architectures": [
+    "MIRAForPrediction"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "Maple728/TimeMoE-50M--configuration_time_moe.TimeMoeConfig",
+    "AutoModelForCausalLM": "Maple728/TimeMoE-50M--modeling_time_moe.TimeMoeForPrediction"
+  },
+  "gradient_checkpointing_kwargs": {
+    "use_reentrant": true
+  },
+  "hidden_act": "silu",
+  "hidden_size": 384,
+  "horizon_lengths": [
+    1
+  ],
+  "initializer_range": 0.02,
+  "input_size": 1,
+  "intermediate_size": 1536,
+  "max_position_embeddings": 4096,
+  "model_type": "mira",
+  "num_attention_heads": 12,
+  "num_experts": 8,
+  "num_experts_per_tok": 2,
+  "num_hidden_layers": 12,
+  "num_key_value_heads": 12,
+  "ode_activation_threshold": 1.0,
+  "ode_func_activation": "silu",
+  "ode_func_hidden_dims": [
+    128,
+    128
+  ],
+  "ode_func_use_time": true,
+  "ode_solver_atol": 1e-06,
+  "ode_solver_method": "dopri5",
+  "ode_solver_rtol": 1e-06,
+  "rms_norm_eps": 1e-06,
+  "rope_theta": 10000,
+  "router_aux_loss_factor": 0.02,
+  "tie_word_embeddings": false,
+  "time_aware_rotary": true,
+  "time_scale": 1.0,
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.1",
+  "use_cache": true,
+  "use_dense": false,
+  "use_terminal_ode": true
+}
+
+2026-04-26 20:07:46,879 - log_util.py[pid:76271;line:57:log_in_local_rank_0] - INFO: Number of the model parameters: 113.428M
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zjl/MIRA/main.py", line 113, in <module>
+[rank0]:     runner.train_model(
+[rank0]:   File "/home/zjl/MIRA/mira/runner.py", line 308, in train_model
+[rank0]:     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1888, in _inner_training_loop
+[rank0]:     train_dataloader = self.get_train_dataloader()
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 874, in get_train_dataloader
+[rank0]:     dataloader_params["sampler"] = self._get_train_sampler()
+[rank0]:                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 844, in _get_train_sampler
+[rank0]:     return RandomSampler(self.train_dataset)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/utils/data/sampler.py", line 143, in __init__
+[rank0]:     raise ValueError(f"num_samples should be a positive integer value, but got num_samples={self.num_samples}")
+[rank0]: ValueError: num_samples should be a positive integer value, but got num_samples=0
+E0426 20:07:49.172000 139982377972096 torch/distributed/elastic/multiprocessing/api.py:826] failed (exitcode: 1) local_rank: 0 (pid: 76271) of binary: /home/zjl/Jianlin/Anaconda3/bin/python
+Traceback (most recent call last):
+  File "/home/zjl/Jianlin/Anaconda3/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 879, in main
+    run(args)
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 870, in run
+    elastic_launch(
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 132, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 263, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-26_20:07:49
+  host      : zjl-Z390-AORUS-ELITE
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 76271)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2026年 04月 26日 星期日 20:07:49 CST] Training exited with code: 1
+[2026年 04月 26日 星期日 20:07:49 CST] Will restart in 5 seconds... (attempt 4/10)
+[2026年 04月 26日 星期日 20:07:54 CST] Resuming from checkpoint: ppg_output/checkpoint-100
+[2026年 04月 26日 星期日 20:07:54 CST] Starting training (restart #4)...
+Resuming training from checkpoint: ppg_output/checkpoint-100
+2026-04-26 20:07:57,791 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Loading non-time-aware dataset...
+2026-04-26 20:07:57,791 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Processing dataset to fixed-size sub-sequences...
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+2026-04-26 20:07:57,792 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Set global_batch_size to 52
+2026-04-26 20:07:57,792 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Set micro_batch_size to 52
+2026-04-26 20:07:57,792 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Set gradient_accumulation_steps to 1
+2026-04-26 20:07:57,792 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Set precision to bf16
+2026-04-26 20:07:57,792 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Set normalization to zero
+2026-04-26 20:07:57,928 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Use Eager Attention
+2026-04-26 20:07:58,140 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Load model parameters from: ppg_output/checkpoint-100
+2026-04-26 20:07:58,142 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: {'max_length': 1024, 'data_path': 'ppg_full', 'normalization_method': 'zero', 'attn_implementation': 'eager', 'micro_batch_size': 52, 'global_batch_size': 52, 'train_steps': None, 'num_train_epochs': 1.0, 'precision': 'bf16', 'evaluation_strategy': 'no', 'eval_steps': None, 'save_strategy': 'steps', 'save_steps': 100, 'learning_rate': 3e-05, 'min_learning_rate': 0, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_epsilon': 1e-08, 'lr_scheduler_type': 'cosine', 'warmup_ratio': 0.1, 'warmup_steps': 0, 'warmup_start_lr': 0.0001, 'weight_decay': 0.01, 'gradient_checkpointing': True, 'deepspeed': None, 'logging_steps': 10, 'max_grad_norm': 1.0, 'dataloader_num_workers': 8, 'save_only_model': True, 'save_total_limit': 5, 'time_aware_dataset': False, 'time_normalization_method': None, 'time_quantize_resolution': None, 'time_auto_quantize': False, 'data_sample_size': 1000, 'min_valid_history': 1, 'time_aware_rotary': False, 'time_scale': 1.0}
+2026-04-26 20:07:58,142 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: MIRATrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=True,
+bf16_full_eval=False,
+data_seed=9899,
+dataloader_drop_last=False,
+dataloader_num_workers=8,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=True,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=None,
+evaluation_strategy=IntervalStrategy.NO,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=1,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=3e-05,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=False,
+logging_dir=ppg_output/tb_logs,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.COSINE,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=None,
+min_learning_rate=0.0,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=1.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=ppg_output,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=104,
+per_device_train_batch_size=52,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=[],
+resume_from_checkpoint=None,
+run_name=ppg_output,
+save_on_each_node=False,
+save_only_model=True,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=5,
+seed=9899,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_start_lr=0.0001,
+warmup_steps=0,
+weight_decay=0.01,
+)
+2026-04-26 20:07:58,142 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: MIRAConfig {
+  "_name_or_path": "ppg_output/checkpoint-100",
+  "apply_aux_loss": true,
+  "architectures": [
+    "MIRAForPrediction"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "Maple728/TimeMoE-50M--configuration_time_moe.TimeMoeConfig",
+    "AutoModelForCausalLM": "Maple728/TimeMoE-50M--modeling_time_moe.TimeMoeForPrediction"
+  },
+  "gradient_checkpointing_kwargs": {
+    "use_reentrant": true
+  },
+  "hidden_act": "silu",
+  "hidden_size": 384,
+  "horizon_lengths": [
+    1
+  ],
+  "initializer_range": 0.02,
+  "input_size": 1,
+  "intermediate_size": 1536,
+  "max_position_embeddings": 4096,
+  "model_type": "mira",
+  "num_attention_heads": 12,
+  "num_experts": 8,
+  "num_experts_per_tok": 2,
+  "num_hidden_layers": 12,
+  "num_key_value_heads": 12,
+  "ode_activation_threshold": 1.0,
+  "ode_func_activation": "silu",
+  "ode_func_hidden_dims": [
+    128,
+    128
+  ],
+  "ode_func_use_time": true,
+  "ode_solver_atol": 1e-06,
+  "ode_solver_method": "dopri5",
+  "ode_solver_rtol": 1e-06,
+  "rms_norm_eps": 1e-06,
+  "rope_theta": 10000,
+  "router_aux_loss_factor": 0.02,
+  "tie_word_embeddings": false,
+  "time_aware_rotary": true,
+  "time_scale": 1.0,
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.1",
+  "use_cache": true,
+  "use_dense": false,
+  "use_terminal_ode": true
+}
+
+2026-04-26 20:07:58,142 - log_util.py[pid:76309;line:57:log_in_local_rank_0] - INFO: Number of the model parameters: 113.428M
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zjl/MIRA/main.py", line 113, in <module>
+[rank0]:     runner.train_model(
+[rank0]:   File "/home/zjl/MIRA/mira/runner.py", line 308, in train_model
+[rank0]:     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1888, in _inner_training_loop
+[rank0]:     train_dataloader = self.get_train_dataloader()
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 874, in get_train_dataloader
+[rank0]:     dataloader_params["sampler"] = self._get_train_sampler()
+[rank0]:                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 844, in _get_train_sampler
+[rank0]:     return RandomSampler(self.train_dataset)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/utils/data/sampler.py", line 143, in __init__
+[rank0]:     raise ValueError(f"num_samples should be a positive integer value, but got num_samples={self.num_samples}")
+[rank0]: ValueError: num_samples should be a positive integer value, but got num_samples=0
+E0426 20:08:00.339000 139674356027776 torch/distributed/elastic/multiprocessing/api.py:826] failed (exitcode: 1) local_rank: 0 (pid: 76309) of binary: /home/zjl/Jianlin/Anaconda3/bin/python
+Traceback (most recent call last):
+  File "/home/zjl/Jianlin/Anaconda3/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 879, in main
+    run(args)
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 870, in run
+    elastic_launch(
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 132, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 263, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-26_20:08:00
+  host      : zjl-Z390-AORUS-ELITE
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 76309)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2026年 04月 26日 星期日 20:08:00 CST] Training exited with code: 1
+[2026年 04月 26日 星期日 20:08:00 CST] Will restart in 5 seconds... (attempt 5/10)
+[2026年 04月 26日 星期日 20:08:05 CST] Resuming from checkpoint: ppg_output/checkpoint-100
+[2026年 04月 26日 星期日 20:08:05 CST] Starting training (restart #5)...
+Resuming training from checkpoint: ppg_output/checkpoint-100
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Loading non-time-aware dataset...
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Processing dataset to fixed-size sub-sequences...
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Set global_batch_size to 52
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Set micro_batch_size to 52
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Set gradient_accumulation_steps to 1
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Set precision to bf16
+2026-04-26 20:08:08,831 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Set normalization to zero
+2026-04-26 20:08:08,951 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Use Eager Attention
+2026-04-26 20:08:09,127 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Load model parameters from: ppg_output/checkpoint-100
+2026-04-26 20:08:09,128 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: {'max_length': 1024, 'data_path': 'ppg_full', 'normalization_method': 'zero', 'attn_implementation': 'eager', 'micro_batch_size': 52, 'global_batch_size': 52, 'train_steps': None, 'num_train_epochs': 1.0, 'precision': 'bf16', 'evaluation_strategy': 'no', 'eval_steps': None, 'save_strategy': 'steps', 'save_steps': 100, 'learning_rate': 3e-05, 'min_learning_rate': 0, 'adam_beta1': 0.9, 'adam_beta2': 0.999, 'adam_epsilon': 1e-08, 'lr_scheduler_type': 'cosine', 'warmup_ratio': 0.1, 'warmup_steps': 0, 'warmup_start_lr': 0.0001, 'weight_decay': 0.01, 'gradient_checkpointing': True, 'deepspeed': None, 'logging_steps': 10, 'max_grad_norm': 1.0, 'dataloader_num_workers': 8, 'save_only_model': True, 'save_total_limit': 5, 'time_aware_dataset': False, 'time_normalization_method': None, 'time_quantize_resolution': None, 'time_auto_quantize': False, 'data_sample_size': 1000, 'min_valid_history': 1, 'time_aware_rotary': False, 'time_scale': 1.0}
+2026-04-26 20:08:09,129 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: MIRATrainingArguments(
+_n_gpu=1,
+accelerator_config={'split_batches': False, 'dispatch_batches': None, 'even_batches': True, 'use_seedable_sampler': True, 'gradient_accumulation_kwargs': None},
+adafactor=False,
+adam_beta1=0.9,
+adam_beta2=0.999,
+adam_epsilon=1e-08,
+auto_find_batch_size=False,
+bf16=True,
+bf16_full_eval=False,
+data_seed=9899,
+dataloader_drop_last=False,
+dataloader_num_workers=8,
+dataloader_persistent_workers=False,
+dataloader_pin_memory=True,
+dataloader_prefetch_factor=None,
+ddp_backend=None,
+ddp_broadcast_buffers=None,
+ddp_bucket_cap_mb=None,
+ddp_find_unused_parameters=True,
+ddp_timeout=1800,
+debug=[],
+deepspeed=None,
+disable_tqdm=False,
+dispatch_batches=None,
+do_eval=False,
+do_predict=False,
+do_train=False,
+eval_accumulation_steps=None,
+eval_delay=0,
+eval_do_concat_batches=True,
+eval_steps=None,
+evaluation_strategy=IntervalStrategy.NO,
+fp16=False,
+fp16_backend=auto,
+fp16_full_eval=False,
+fp16_opt_level=O1,
+fsdp=[],
+fsdp_config={'min_num_params': 0, 'xla': False, 'xla_fsdp_v2': False, 'xla_fsdp_grad_ckpt': False},
+fsdp_min_num_params=0,
+fsdp_transformer_layer_cls_to_wrap=None,
+full_determinism=False,
+gradient_accumulation_steps=1,
+gradient_checkpointing=True,
+gradient_checkpointing_kwargs={'use_reentrant': False},
+greater_is_better=None,
+group_by_length=False,
+half_precision_backend=auto,
+hub_always_push=False,
+hub_model_id=None,
+hub_private_repo=False,
+hub_strategy=HubStrategy.EVERY_SAVE,
+hub_token=<HUB_TOKEN>,
+ignore_data_skip=False,
+include_inputs_for_metrics=False,
+include_num_input_tokens_seen=False,
+include_tokens_per_second=False,
+jit_mode_eval=False,
+label_names=None,
+label_smoothing_factor=0.0,
+learning_rate=3e-05,
+length_column_name=length,
+load_best_model_at_end=False,
+local_rank=0,
+log_level=passive,
+log_level_replica=warning,
+log_on_each_node=False,
+logging_dir=ppg_output/tb_logs,
+logging_first_step=True,
+logging_nan_inf_filter=True,
+logging_steps=10,
+logging_strategy=IntervalStrategy.STEPS,
+lr_scheduler_kwargs={},
+lr_scheduler_type=SchedulerType.COSINE,
+max_grad_norm=1.0,
+max_steps=-1,
+metric_for_best_model=None,
+min_learning_rate=0.0,
+mp_parameters=,
+neftune_noise_alpha=None,
+no_cuda=False,
+num_train_epochs=1.0,
+optim=OptimizerNames.ADAMW_TORCH,
+optim_args=None,
+optim_target_modules=None,
+output_dir=ppg_output,
+overwrite_output_dir=False,
+past_index=-1,
+per_device_eval_batch_size=104,
+per_device_train_batch_size=52,
+prediction_loss_only=False,
+push_to_hub=False,
+push_to_hub_model_id=None,
+push_to_hub_organization=None,
+push_to_hub_token=<PUSH_TO_HUB_TOKEN>,
+ray_scope=last,
+remove_unused_columns=True,
+report_to=[],
+resume_from_checkpoint=None,
+run_name=ppg_output,
+save_on_each_node=False,
+save_only_model=True,
+save_safetensors=True,
+save_steps=100,
+save_strategy=IntervalStrategy.STEPS,
+save_total_limit=5,
+seed=9899,
+skip_memory_metrics=True,
+split_batches=None,
+tf32=None,
+torch_compile=False,
+torch_compile_backend=None,
+torch_compile_mode=None,
+torchdynamo=None,
+tpu_metrics_debug=False,
+tpu_num_cores=None,
+use_cpu=False,
+use_ipex=False,
+use_legacy_prediction_loop=False,
+use_mps_device=False,
+warmup_ratio=0.1,
+warmup_start_lr=0.0001,
+warmup_steps=0,
+weight_decay=0.01,
+)
+2026-04-26 20:08:09,129 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: MIRAConfig {
+  "_name_or_path": "ppg_output/checkpoint-100",
+  "apply_aux_loss": true,
+  "architectures": [
+    "MIRAForPrediction"
+  ],
+  "attention_dropout": 0.0,
+  "auto_map": {
+    "AutoConfig": "Maple728/TimeMoE-50M--configuration_time_moe.TimeMoeConfig",
+    "AutoModelForCausalLM": "Maple728/TimeMoE-50M--modeling_time_moe.TimeMoeForPrediction"
+  },
+  "gradient_checkpointing_kwargs": {
+    "use_reentrant": true
+  },
+  "hidden_act": "silu",
+  "hidden_size": 384,
+  "horizon_lengths": [
+    1
+  ],
+  "initializer_range": 0.02,
+  "input_size": 1,
+  "intermediate_size": 1536,
+  "max_position_embeddings": 4096,
+  "model_type": "mira",
+  "num_attention_heads": 12,
+  "num_experts": 8,
+  "num_experts_per_tok": 2,
+  "num_hidden_layers": 12,
+  "num_key_value_heads": 12,
+  "ode_activation_threshold": 1.0,
+  "ode_func_activation": "silu",
+  "ode_func_hidden_dims": [
+    128,
+    128
+  ],
+  "ode_func_use_time": true,
+  "ode_solver_atol": 1e-06,
+  "ode_solver_method": "dopri5",
+  "ode_solver_rtol": 1e-06,
+  "rms_norm_eps": 1e-06,
+  "rope_theta": 10000,
+  "router_aux_loss_factor": 0.02,
+  "tie_word_embeddings": false,
+  "time_aware_rotary": true,
+  "time_scale": 1.0,
+  "torch_dtype": "float32",
+  "transformers_version": "4.40.1",
+  "use_cache": true,
+  "use_dense": false,
+  "use_terminal_ode": true
+}
+
+2026-04-26 20:08:09,129 - log_util.py[pid:76360;line:57:log_in_local_rank_0] - INFO: Number of the model parameters: 113.428M
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/home/zjl/MIRA/main.py", line 113, in <module>
+[rank0]:     runner.train_model(
+[rank0]:   File "/home/zjl/MIRA/mira/runner.py", line 308, in train_model
+[rank0]:     trainer.train(resume_from_checkpoint=resume_from_checkpoint)
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1859, in train
+[rank0]:     return inner_training_loop(
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 1888, in _inner_training_loop
+[rank0]:     train_dataloader = self.get_train_dataloader()
+[rank0]:                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 874, in get_train_dataloader
+[rank0]:     dataloader_params["sampler"] = self._get_train_sampler()
+[rank0]:                                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/transformers/trainer.py", line 844, in _get_train_sampler
+[rank0]:     return RandomSampler(self.train_dataset)
+[rank0]:            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/utils/data/sampler.py", line 143, in __init__
+[rank0]:     raise ValueError(f"num_samples should be a positive integer value, but got num_samples={self.num_samples}")
+[rank0]: ValueError: num_samples should be a positive integer value, but got num_samples=0
+E0426 20:08:11.455000 139907412275584 torch/distributed/elastic/multiprocessing/api.py:826] failed (exitcode: 1) local_rank: 0 (pid: 76360) of binary: /home/zjl/Jianlin/Anaconda3/bin/python
+Traceback (most recent call last):
+  File "/home/zjl/Jianlin/Anaconda3/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 879, in main
+    run(args)
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/run.py", line 870, in run
+    elastic_launch(
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 132, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/zjl/Jianlin/Anaconda3/lib/python3.11/site-packages/torch/distributed/launcher/api.py", line 263, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+main.py FAILED
+------------------------------------------------------------
+Failures:
+  <NO_OTHER_FAILURES>
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-26_20:08:11
+  host      : zjl-Z390-AORUS-ELITE
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 76360)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
+[2026年 04月 26日 星期日 20:08:11 CST] Training exited with code: 1
+[2026年 04月 26日 星期日 20:08:11 CST] Will restart in 5 seconds... (attempt 6/10)
