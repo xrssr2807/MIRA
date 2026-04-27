@@ -10,7 +10,7 @@ LEARNING_RATE="3e-5"
 WARMUP_RATIO="0.1"
 ADAM_BETA2="0.999"
 WEIGHT_DECAY="0.01"
-SAVE_STEPS=100
+SAVE_STEPS=500
 
 while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
     # Find latest checkpoint
@@ -56,7 +56,7 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
         --weight_decay $WEIGHT_DECAY \
         --learning_rate $LEARNING_RATE \
         --num_train_epochs 1.0 \
-        --dataloader_num_workers 8 \
+        --dataloader_num_workers 2 \
         --adam_beta2 $ADAM_BETA2
 
     EXIT_CODE=$?

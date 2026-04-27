@@ -1,0 +1,9 @@
+{
+  "checkpoint": "/home/zjl/MIRA/ppg_output/checkpoint-7000",
+  "context_len": 300,
+  "pred_len": 100,
+  "n_samples": 200,
+  "rmse": 0.24541479793867452,
+  "mae": 0.19481058384294264,
+  "mape": 6477765.13930634
+}
