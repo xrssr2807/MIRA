@@ -40,11 +40,11 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
         $FROM_SCRATCH_FLAG \
         --data_path "$DATA_PATH" \
         --output_path "$OUTPUT_DIR" \
-        --max_length 1024 \
+        --max_length 4096 \
         --normalization_method zero \
         --attn_implementation eager \
-        --micro_batch_size 52 \
-        --global_batch_size 52 \
+        --micro_batch_size 512 \
+        --global_batch_size 512 \
         --precision bf16 \
         --save_strategy steps \
         --save_steps $SAVE_STEPS \
@@ -58,7 +58,7 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
         --weight_decay $WEIGHT_DECAY \
         --learning_rate $LEARNING_RATE \
         --num_train_epochs 1.0 \
-        --dataloader_num_workers 2 \
+        --dataloader_num_workers 4 \
         --adam_beta2 $ADAM_BETA2
 
     EXIT_CODE=$?
