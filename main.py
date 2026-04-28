@@ -49,17 +49,19 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=9899, help='random seed')
     parser.add_argument('--attn_implementation', type=str, choices=['auto', 'eager', 'flash_attention_2'], default='auto', help='attention implementation')
     
-    parser.add_argument('--lr_scheduler_type', type=str, choices=['constant', 'linear', 'cosine', 'constant_with_warmup'], default='linear', help='learning rate scheduler type')
-    parser.add_argument('--warmup_ratio', type=float, default=0.0, help='warmup ratio')
+    parser.add_argument('--lr_scheduler_type', type=str, choices=['constant', 'linear', 'cosine', 'constant_with_warmup'], default='cosine', help='learning rate scheduler type')
+    parser.add_argument('--warmup_ratio', type=float, default=0.03, help='warmup ratio')
     parser.add_argument('--warmup_steps', type=int, default=0, help='warmup steps')
+    parser.add_argument('--warmup_start_lr', type=float, default=1e-4, help='warmup starting LR as ratio of base_lr (e.g. 1e-4 = 0.01% of base LR at step 0)')
     parser.add_argument('--weight_decay', type=float, default=0.1, help='weight decay')
     
     parser.add_argument('--global_batch_size', type=int, default=16, help='global batch size')
     parser.add_argument('--micro_batch_size', type=int, default=16, help='micro batch size per device')
     
-    parser.add_argument('--precision', choices=['fp32', 'fp16', 'bf16'], type=str, default='fp32', help='precision mode (default: fp32)')
+    parser.add_argument('--precision', choices=['fp32', 'fp16', 'bf16'], type=str, default='fp16', help='precision mode (default: fp16 for AMP)')
     parser.add_argument('--gradient_checkpointing', action='store_true', help='enable gradient checkpointing')
     parser.add_argument('--deepspeed', type=str, default=None, help='DeepSpeed config file path')
+    parser.add_argument('--torch_compile', action='store_true', help='enable torch.compile for PyTorch 2.0+ speedup')
 
     parser.add_argument('--from_scratch', action='store_true', help='train from scratch')
     parser.add_argument('--save_steps', type=int, default=None, help='number of steps to save model')
@@ -134,6 +136,7 @@ if __name__ == '__main__':
         lr_scheduler_type=args.lr_scheduler_type,
         warmup_ratio=args.warmup_ratio,
         warmup_steps=args.warmup_steps,
+        warmup_start_lr=args.warmup_start_lr,
         weight_decay=args.weight_decay,
         gradient_checkpointing=args.gradient_checkpointing,
         deepspeed=args.deepspeed,

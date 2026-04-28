@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d5363c1103f9637033ae9b003d583b4b999fb40f
 <div align="center">
   <h2><b>(NeurIPS '25) MIRA: Medical Time Series Foundation Model for Real-World Health Data </b></h2>
 </div>
@@ -289,6 +292,9 @@ trademarks or logos is subject to and must follow
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.
 
+<<<<<<< HEAD
 =======
 # MIRA
 >>>>>>> 36ad83ae3d0e155330954fd66b73d60662d318bd
+=======
+>>>>>>> d5363c1103f9637033ae9b003d583b4b999fb40f

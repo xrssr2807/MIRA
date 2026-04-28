@@ -1,245 +1,230 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT license.
-
+#!/usr/bin/env python3
 """
-Part of code from time_moe.run_eval
-https://github.com/Time-MoE/Time-MoE
+MIRA 模型性能评估
+- 全局 z-score 归一化：训练集计算统一的 mean/std
+- 模型在归一化空间训练和推理
+- 反归一化参数保存到 PKL 文件，供下游任务使用
 """
-
-import json
 import os
-import argparse
+import sys
+import json
+import pickle
 import numpy as np
-import logging
 import torch
-import torch.distributed as dist
-from torch.utils.data import DistributedSampler, DataLoader
-from tqdm import tqdm
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
-from transformers import AutoModelForCausalLM
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+from mira.models.modeling_mira import MIRAForPrediction
 
-from mira.datasets.benchmark_dataset import BenchmarkEvalDataset, GeneralEvalDataset
+# Paths (override via environment variables)
+DATA_DIR = os.environ.get("MIRA_DATA_DIR", "processed_dataset/data")
+SPLIT_PATH = os.environ.get("MIRA_SPLIT_PATH", os.path.join(os.path.dirname(DATA_DIR), "split.json"))
+CHECKPOINT = os.environ.get("MIRA_CHECKPOINT", "ppg_output/checkpoint-7000")
+OUTPUT_DIR = os.environ.get("MIRA_OUTPUT_DIR", "ppg_output/eval_results")
+TRAIN_DIR = os.environ.get("MIRA_TRAIN_DIR", "ppg_full")
+NORM_STATS_PATH = os.environ.get("MIRA_NORM_STATS", os.path.join(TRAIN_DIR, "norm_stats.pkl"))
 
-
-def setup_nccl(rank, world_size, master_addr='127.0.0.1', master_port=9899):
-    dist.init_process_group("nccl", init_method='tcp://{}:{}'.format(master_addr, master_port), rank=rank,
-                            world_size=world_size)
-
-
-def count_num_tensor_elements(tensor):
-    n = 1
-    for s in tensor.shape:
-        n = n * s
-    return n
-
-
-# ------------------ Metrics ------------------
-class SumEvalMetric:
-    def __init__(self, name, init_val: float = 0.0):
-        self.name = name
-        self.value = init_val
-
-    def push(self, preds, labels, **kwargs):
-        self.value += self._calculate(preds, labels, **kwargs)
-
-    def _calculate(self, preds, labels, **kwargs):
-        pass
+# Eval settings
+CONTEXT_LEN = 300
+PRED_LEN = 100
 
 
-class MSEMetric(SumEvalMetric):
-    def _calculate(self, preds, labels, **kwargs):
-        return torch.sum((preds - labels) ** 2)
+def load_norm_stats(path):
+    """Load global normalization stats from PKL."""
+    with open(path, 'rb') as f:
+        stats = pickle.load(f)
+    return stats["global_mean"], stats["global_std"]
 
 
-class MAEMetric(SumEvalMetric):
-    def _calculate(self, preds, labels, **kwargs):
-        return torch.sum(torch.abs(preds - labels))
+def load_test_files(split_path, data_dir, max_samples=500):
+    """Load test PKL files. Only PPG channel."""
+    with open(split_path) as f:
+        split = json.load(f)
+    test_files = split.get("test", [])
+    print(f"Total test files: {len(test_files)}")
+
+    seqs = []
+    for fn in test_files[:max_samples]:
+        fp = os.path.join(data_dir, fn)
+        if not os.path.exists(fp):
+            continue
+        with open(fp, 'rb') as f:
+            item = pickle.load(f)
+        data = item["data"]
+        if data.ndim == 2:
+            data = data[0]
+        data = data.astype(np.float32)
+        if len(data) >= CONTEXT_LEN + PRED_LEN:
+            seqs.append(data)
+
+    print(f"Loaded {len(seqs)} sequences with length >= {CONTEXT_LEN + PRED_LEN}")
+    return seqs
 
 
-class MIRA:
-    def __init__(self, model_path, device, context_length, prediction_length, **kwargs):
-        try:
-            from mira.models.modeling_mira import TimeMoeForPrediction
-            model = TimeMoeForPrediction.from_pretrained(
-                model_path,
-                device_map=device,
-                # attn_implementation='flash_attention_2',
-                torch_dtype='auto',
-            )
-        except:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_path,
-                device_map=device,
-                # attn_implementation='flash_attention_2',
-                torch_dtype='auto',
-                trust_remote_code=True,
-            )
-
-        logging.info(f'>>> Model dtype: {model.dtype}; Attention:{model.config._attn_implementation}')
-
-        self.model = model
-        self.device = device
-        self.prediction_length = prediction_length
-        self.model.eval()
-
-    def predict(self, batch):
-        model = self.model
-        device = self.device
-        prediction_length = self.prediction_length
-
-        outputs = model.generate(
-            inputs=batch['inputs'].to(device).to(model.dtype),
-            max_new_tokens=prediction_length,
-        )
-        preds = outputs[:, -prediction_length:]
-        labels = batch['labels'].to(device)
-        if len(preds.shape) > len(labels.shape):
-            labels = labels[..., None]
-        return preds, labels
+def normalize_sequence(seq, global_mean, global_std):
+    """Z-score normalize using GLOBAL mean/std."""
+    return (seq - global_mean) / global_std
 
 
-def evaluate(args):
-    batch_size = args.batch_size
-    context_length = args.context_length
-    prediction_length = args.prediction_length
+def predict_normalized(model, context_norm, pred_len, device):
+    """Autoregressive prediction in normalized space."""
+    model.eval()
+    cur_input = torch.tensor(context_norm, dtype=torch.float32).unsqueeze(-1).to(device)
+    predictions = []
 
-    master_addr = os.getenv('MASTER_ADDR', '127.0.0.1')
-    master_port = os.getenv('MASTER_PORT', 9899)
-    world_size = int(os.getenv('WORLD_SIZE') or 1)
-    rank = int(os.getenv('RANK') or 0)
-    local_rank = int(os.getenv('LOCAL_RANK') or 0)
-    if torch.cuda.is_available():
-        try:
-            setup_nccl(rank=rank, world_size=world_size, master_addr=master_addr, master_port=master_port)
-            device = f"cuda:{local_rank}"
-            is_dist = True
-        except Exception as e:
-            print('Error: ', f'Setup nccl fail, so set device to cpu: {e}')
-            device = 'cpu'
-            is_dist = False
-    else:
-        device = 'cpu'
-        is_dist = False
+    for _ in range(pred_len):
+        with torch.no_grad():
+            seq_len = cur_input.shape[0]
+            input_ids = cur_input.unsqueeze(0)
+            time_values = torch.arange(seq_len, dtype=torch.float32, device=device).unsqueeze(0) * 10.0
+            out = model(input_ids=input_ids, time_values=time_values, return_dict=True)
+            next_pred = out.logits[0, -1]
+            predictions.append(next_pred.cpu().item())
+            cur_input = torch.cat([cur_input, next_pred.unsqueeze(-1)], dim=0)
 
-    # evaluation
-    metric_list = [
-        MSEMetric(name='mse'),
-        MAEMetric(name='mae'),
-    ]
-
-    model = MIRA(
-        args.model,
-        device,
-        context_length=context_length,
-        prediction_length=prediction_length
-    )
-    if args.data.endswith('.csv'):
-        dataset = BenchmarkEvalDataset(
-            args.data,
-            context_length=context_length,
-            prediction_length=prediction_length,
-        )
-    else:
-        dataset = GeneralEvalDataset(
-            args.data,
-            context_length=context_length,
-            prediction_length=prediction_length,
-        )
-
-    if torch.cuda.is_available() and dist.is_initialized():
-        sampler = DistributedSampler(dataset=dataset, shuffle=False)
-    else:
-        sampler = None
-    test_dl = DataLoader(
-        dataset=dataset,
-        batch_size=batch_size,
-        sampler=sampler,
-        shuffle=False,
-        num_workers=2,
-        prefetch_factor=2,
-        drop_last=False,
-    )
-
-    acc_count = 0
-    with torch.no_grad():
-        for idx, batch in enumerate(tqdm(test_dl)):
-            preds, labels = model.predict(batch)
-
-            for metric in metric_list:
-                metric.push(preds, labels)
-
-            acc_count += count_num_tensor_elements(preds)
-
-    ret_metric = {}
-    for metric in metric_list:
-        ret_metric[metric.name] = metric.value / acc_count
-    print(f'{rank} - {ret_metric}')
-
-    metric_tensors = [metric.value for metric in metric_list] + [acc_count]
-    if is_dist:
-        stat_tensor = torch.tensor(metric_tensors).to(model.device)
-        gathered_results = [torch.zeros_like(stat_tensor) for _ in range(world_size)]
-        dist.all_gather(gathered_results, stat_tensor)
-        all_stat = torch.stack(gathered_results, dim=0).sum(dim=0)
-    else:
-        all_stat = metric_tensors
-
-    if rank == 0:
-        item = {
-            'model': args.model,
-            'data': args.data,
-            'context_length': args.context_length,
-            'prediction_length': args.prediction_length,
-        }
-
-        count = all_stat[-1]
-        for i, metric in enumerate(metric_list):
-            val = all_stat[i] / count
-            item[metric.name] = float(val.cpu().numpy())
-        logging.info(item)
+    return np.array(predictions)
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser('MIRA Evaluate')
-    parser.add_argument(
-        '--model', '-m',
-        type=str,
-        default='MIRA-small',
-        help='Model path'
-    )
-    parser.add_argument(
-        '--data', '-d',
-        type=str,
-        help='Benchmark data path'
-    )
+def inverse_normalize(preds_norm, global_mean, global_std):
+    return preds_norm * global_std + global_mean
 
-    parser.add_argument(
-        '--batch_size', '-b',
-        type=int,
-        default=32,
-        help='Batch size of evaluation'
-    )
-    parser.add_argument(
-        '--context_length', '-c',
-        type=int,
-        help='Context length'
-    )
-    parser.add_argument(
-        '--prediction_length', '-p',
-        type=int,
-        default=96,
-        help='Prediction length'
-    )
-    args = parser.parse_args()
-    if args.context_length is None:
-        if args.prediction_length == 96:
-            args.context_length = 512
-        elif args.prediction_length == 192:
-            args.context_length = 1024
-        elif args.prediction_length == 336:
-            args.context_length = 2048
-        elif args.prediction_length == 720:
-            args.context_length = 3072
-        else:
-            args.context_length = args.prediction_length * 4
-    evaluate(args)
+
+def evaluate(seqs, model, device, global_mean, global_std, max_samples=200):
+    all_rmse, all_mae, all_mape = [], [], []
+    viz_pairs = []
+
+    total = min(len(seqs), max_samples)
+    print(f"\nEvaluating {total} sequences...")
+    print(f"Global mean={global_mean:.4f}, std={global_std:.4f}")
+
+    for i in range(total):
+        seq = seqs[i]
+        ground_truth = seq[CONTEXT_LEN:CONTEXT_LEN + PRED_LEN]
+
+        # Normalize with GLOBAL stats
+        seq_norm = normalize_sequence(seq, global_mean, global_std)
+        context_norm = seq_norm[:CONTEXT_LEN]
+
+        # Predict in normalized space
+        preds_norm = predict_normalized(model, context_norm, PRED_LEN, device)
+
+        # Inverse normalize with GLOBAL stats
+        preds = inverse_normalize(preds_norm, global_mean, global_std)
+
+        rmse = np.sqrt(np.mean((preds - ground_truth) ** 2))
+        mae = np.mean(np.abs(preds - ground_truth))
+        mape = np.mean(np.abs((ground_truth - preds) / (np.abs(ground_truth) + 1e-8))) * 100
+
+        all_rmse.append(rmse)
+        all_mae.append(mae)
+        all_mape.append(mape)
+
+        if i < 5:
+            viz_pairs.append((seq[:CONTEXT_LEN], ground_truth, preds, rmse))
+
+        if (i + 1) % 50 == 0:
+            print(f"  Processed {i + 1}/{total}, avg RMSE={np.mean(all_rmse):.4f}")
+
+    return {
+        "rmse": float(np.mean(all_rmse)),
+        "mae": float(np.mean(all_mae)),
+        "mape": float(np.mean(all_mape)),
+        "n": len(all_rmse),
+    }, viz_pairs
+
+
+def plot_results(viz_pairs, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    fig, axes = plt.subplots(len(viz_pairs), 1, figsize=(14, 3 * len(viz_pairs)))
+    if len(viz_pairs) == 1:
+        axes = [axes]
+
+    for i, (ctx, gt, pred, rmse) in enumerate(viz_pairs):
+        ax = axes[i]
+        total_len = CONTEXT_LEN + PRED_LEN
+        x = np.arange(total_len)
+        ax.plot(x[:CONTEXT_LEN], ctx, 'b-', linewidth=1.5, label='Context (300)', alpha=0.7)
+        ax.plot(x[CONTEXT_LEN - 10:CONTEXT_LEN + PRED_LEN],
+                np.concatenate([ctx[-10:], gt]), 'g-', linewidth=1.5, label='Ground Truth', alpha=0.8)
+        ax.plot(x[CONTEXT_LEN:CONTEXT_LEN + PRED_LEN], pred, 'r--', linewidth=1.5,
+                label=f'Prediction (RMSE={rmse:.4f})')
+        ax.axvline(x=CONTEXT_LEN, color='gray', linestyle=':', alpha=0.5)
+        ax.set_title(f'Sample {i + 1}')
+        ax.legend(fontsize=8, loc='upper right')
+        ax.grid(True, alpha=0.3)
+
+    fig.suptitle(f'MIRA Evaluation: {CONTEXT_LEN} context -> {PRED_LEN} prediction',
+                 fontsize=14, fontweight='bold')
+    fig.tight_layout()
+    plot_path = os.path.join(output_dir, 'predictions.png')
+    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"\nSaved visualization to {plot_path}")
+
+
+def main():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Device: {device}")
+    print(f"Checkpoint: {CHECKPOINT}")
+    print(f"Context: {CONTEXT_LEN} points -> Predict: {PRED_LEN} points\n")
+
+    # Load global normalization stats
+    print(f"Loading global norm stats from {NORM_STATS_PATH}...")
+    global_mean, global_std = load_norm_stats(NORM_STATS_PATH)
+    print(f"  Global mean: {global_mean:.4f}")
+    print(f"  Global std:  {global_std:.4f}\n")
+
+    print("Loading model...")
+    model = MIRAForPrediction.from_pretrained(
+        CHECKPOINT, local_files_only=True, attn_implementation='eager',
+    ).to(device)
+    print(f"Model loaded. Parameters: {sum(p.numel() for p in model.parameters()) / 1e6:.1f}M\n")
+
+    print("Loading test data...")
+    seqs = load_test_files(SPLIT_PATH, DATA_DIR, max_samples=1000)
+    print()
+
+    metrics, viz_pairs = evaluate(seqs, model, device, global_mean, global_std, max_samples=200)
+
+    print("\n" + "=" * 50)
+    print("  EVALUATION RESULTS")
+    print("=" * 50)
+    print(f"  Samples evaluated: {metrics['n']}")
+    print(f"  Context -> Predict: {CONTEXT_LEN} -> {PRED_LEN}")
+    print(f"  Global mean: {global_mean:.4f}, std: {global_std:.4f}")
+    print(f"  RMSE: {metrics['rmse']:.4f}")
+    print(f"  MAE:  {metrics['mae']:.4f}")
+    print(f"  MAPE: {metrics['mape']:.2f}%")
+    print("=" * 50)
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    results = {
+        "checkpoint": CHECKPOINT,
+        "context_len": CONTEXT_LEN,
+        "pred_len": PRED_LEN,
+        "global_mean": global_mean,
+        "global_std": global_std,
+        "n_samples": metrics["n"],
+        "rmse": metrics["rmse"],
+        "mae": metrics["mae"],
+        "mape": metrics["mape"],
+    }
+    with open(os.path.join(OUTPUT_DIR, "eval_results.json"), 'w') as f:
+        json.dump(results, f, indent=2)
+    print(f"\nSaved metrics to {OUTPUT_DIR}/eval_results.json")
+
+    # Save global norm stats (PKL) for downstream tasks
+    with open(os.path.join(OUTPUT_DIR, "norm_stats.pkl"), 'wb') as f:
+        pickle.dump({"global_mean": global_mean, "global_std": global_std}, f)
+    print(f"Saved global norm stats to {OUTPUT_DIR}/norm_stats.pkl")
+
+    if viz_pairs:
+        plot_results(viz_pairs, OUTPUT_DIR)
+
+
+if __name__ == "__main__":
+    main()
+>>>>>>> d5363c1103f9637033ae9b003d583b4b999fb40f

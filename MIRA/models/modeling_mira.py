@@ -494,10 +494,9 @@ class MIRAAttention(nn.Module):
         query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        past_len = past_key_value.get_usable_length(None, self.layer_idx)
-        kv_seq_len = past_len + key_states.shape[-2]
-        #kv_seq_len = key_states.shape[-2]
         if past_key_value is not None:
+            past_len = past_key_value.get_usable_length(None, self.layer_idx)
+            kv_seq_len = past_len + key_states.shape[-2]
             if self.layer_idx is None:
                 raise ValueError(
                     f"The cache structure has changed since version v4.36. If you are using {self.__class__.__name__} "
@@ -505,6 +504,8 @@ class MIRAAttention(nn.Module):
                     "with a layer index."
                 )
             kv_seq_len += past_key_value.get_usable_length(kv_seq_len, self.layer_idx)
+        else:
+            kv_seq_len = key_states.shape[-2]
         
         if isinstance(self.rotary_emb, ContinuousTimeRotaryEmbedding):
             if time_values is None:
@@ -1303,55 +1304,49 @@ class MIRAForPrediction(MIRAPreTrainedModel, MIRAGenerationMixin):
             return_dict=return_dict,
         )
 
-        hidden_states_all = outputs.last_hidden_state if return_dict else outputs[0]
-        hidden_states_last = hidden_states_all[:, -1, :] # Shape [B, D]
+        hidden_states_all = outputs.last_hidden_state if return_dict else outputs[0]  # [B, L, D]
 
-        time_values_last = None
-        if time_values is not None:
-            time_values_last = time_values[:, -1] # Shape [B]
-        
-        hidden_states_for_head = hidden_states_last  # default (no ODE)
-
-        # Safe ODE block
-        if (
-            self.use_terminal_ode
-            and self.ode_extrapolation_block is not None
-            and next_target_time_values is not None   #  future time
-            and time_values_last is not None          #  t_N
-        ):
-            # Ensure times have correct shape
-            if time_values_last.dim() == 0:
-                time_values_last = time_values_last.expand(hidden_states_last.shape[0])
-            if next_target_time_values.dim() == 0:
-                next_target_time_values = next_target_time_values.expand(hidden_states_last.shape[0])
-
-            if time_values_last.dim() == 2:
-                time_values_last = time_values_last.squeeze(-1)
-            if next_target_time_values.dim() == 2:
-                next_target_time_values = next_target_time_values.squeeze(-1)
-
-            # Run ODE extrapolation
-            hidden_states_for_head = self.ode_extrapolation_block(
-                h_N=hidden_states_last,
-                t_N=time_values_last,
-                t_Nplus1=next_target_time_values  
-            )
+        # --- Training / with labels: predict at every position ---
+        if labels is not None:
+            hidden_states = hidden_states_all
+            # ODE block only works on last token, skip during training for next-token prediction
         else:
-            # If training and missing next_target_time_values: warn once
-            if self.training and next_target_time_values is None:
-                warnings.warn("use_terminal_ode=True but next_target_time_values not provided during training. ODE skipped.")
-            # If inference and missing next_target_time_values: silently skip (no error)
-            pass
+            # --- Inference: original behavior (last token + optional ODE) ---
+            hidden_states_last = hidden_states_all[:, -1, :]  # [B, D]
+            time_values_last = None
+            if time_values is not None:
+                time_values_last = time_values[:, -1]
 
-        # Unsqueeze the sequence dimension (now length 1) before passing to heads
-        hidden_states = hidden_states_for_head.unsqueeze(1) # Shape [B, 1, D]
+            hidden_states_for_head = hidden_states_last  # default (no ODE)
+
+            if (
+                self.use_terminal_ode
+                and self.ode_extrapolation_block is not None
+                and next_target_time_values is not None
+                and time_values_last is not None
+            ):
+                if time_values_last.dim() == 0:
+                    time_values_last = time_values_last.expand(hidden_states_last.shape[0])
+                if next_target_time_values.dim() == 0:
+                    next_target_time_values = next_target_time_values.expand(hidden_states_last.shape[0])
+                if time_values_last.dim() == 2:
+                    time_values_last = time_values_last.squeeze(-1)
+                if next_target_time_values.dim() == 2:
+                    next_target_time_values = next_target_time_values.squeeze(-1)
+
+                hidden_states_for_head = self.ode_extrapolation_block(
+                    h_N=hidden_states_last,
+                    t_N=time_values_last,
+                    t_Nplus1=next_target_time_values,
+                )
+            hidden_states = hidden_states_for_head.unsqueeze(1)  # [B, 1, D]
 
         # hidden_states = outputs[0]
         predictions = None
         loss = None
         aux_loss = None
         if labels is not None:
-            # AutoRegressive loss
+            # Next-token prediction loss at every position
             ar_loss = 0.0
             for lm_head, horizon_length in zip(self.lm_heads, self.config.horizon_lengths):
                 one_predictions = lm_head(hidden_states)
@@ -1430,8 +1425,16 @@ class MIRAForPrediction(MIRAPreTrainedModel, MIRAGenerationMixin):
                 loss_masks = loss_masks.permute(0, 2, 3, 1)
 
         else:
+            # horizon_length == 1: next-token prediction at every position
+            # predictions: [B, L, 1], labels: [B, L, 1] — already aligned
             shift_predictions = predictions
-            shift_labels = labels
+            if labels.dim() == 2:
+                labels = labels.unsqueeze(-1)
+            shift_labels = labels.to(predictions.device)
+            if loss_masks is not None:
+                if loss_masks.dim() == 2:
+                    loss_masks = loss_masks.unsqueeze(-1)
+                loss_masks = loss_masks.to(predictions.device)
 
         # Calculate loss with mask
         losses = self.loss_function(shift_predictions, shift_labels)

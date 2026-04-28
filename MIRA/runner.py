@@ -23,7 +23,8 @@ from mira.utils.dist_util import get_world_size
 from mira.utils.log_util import logger, log_in_local_rank_0
 
 from mira.datasets.timeawared_dataset import TimeAwareJSONLDataset
-
+from mira.datasets.timeawared_pkl_dataset import TimeAwarePKLDataset, MIRAWindowPKLDataset
+from mira.datasets.memmap_dataset import MIRADataMemmapDataset, FlatWindowDataset
 from mira.datasets.time_utils import time_aware_collate_fn
 
 
@@ -65,10 +66,10 @@ class MIRARunner:
         kwargs['attn_implementation'] = attn
 
         if from_scatch:
-            config = MIRAConfig.from_pretrained(model_path, _attn_implementation=attn)
+            config = MIRAConfig.from_pretrained(model_path, _attn_implementation=attn, local_files_only=True)
             model = MIRAForPrediction(config)
         else:
-            model = MIRAForPrediction.from_pretrained(model_path, **kwargs)
+            model = MIRAForPrediction.from_pretrained(model_path, local_files_only=True, **kwargs)
         return model
 
     def train_model(self, from_scratch: bool = False, resume_from_checkpoint: str = None, **kwargs):
@@ -159,6 +160,44 @@ class MIRARunner:
             )
             train_ds = window_dataset # Use this as the training dataset
 
+        # Check for memmap dataset first (fastest)
+        memmap_data = os.path.join(data_path, "ppg_data.npy") if os.path.isdir(data_path) else None
+        if memmap_data and os.path.exists(memmap_data):
+            log_in_local_rank_0('Loading memmap dataset (fast random access)...')
+            normalization = train_config.get('normalization_method', 'zero')
+            base_dataset = MIRADataMemmapDataset(data_path, normalization_method=normalization)
+            window_dataset = FlatWindowDataset(
+                dataset=base_dataset,
+                context_length=max_length,
+                prediction_length=0
+            )
+            train_ds = window_dataset
+            log_in_local_rank_0(f'Memmap dataset: {len(base_dataset)} sequences, {len(train_ds)} windows')
+
+        elif is_time_aware_dataset and (data_path.endswith('.pkl') or os.path.isdir(data_path)):
+            # PKL dataset support
+            log_in_local_rank_0('Loading time-aware PKL dataset...')
+            time_normalization = train_config.get('time_normalization', "none")
+            quantize_res = train_config.get('time_quantize_resolution', None)
+            auto_quantize = train_config.get('time_auto_quantize', False)
+            sample_size = train_config.get('data_sample_size', 1000)
+
+            base_dataset = TimeAwarePKLDataset(
+                data_path=data_path,
+                time_normalization=time_normalization,
+                quantize_resolution=quantize_res,
+                auto_quantize=auto_quantize,
+                sample_size=sample_size
+            )
+
+            window_dataset = MIRAWindowPKLDataset(
+                dataset=base_dataset,
+                context_length=max_length,
+                prediction_length=0
+            )
+            train_ds = window_dataset
+            log_in_local_rank_0(f'PKL dataset: {len(base_dataset)} sequences, {len(train_ds)} windows')
+
         else:
              # Fallback to original non-time-aware data loading if needed
              log_in_local_rank_0('Loading non-time-aware dataset...')
@@ -201,9 +240,10 @@ class MIRARunner:
             adam_beta1=float(train_config.get("adam_beta1", 0.9)),
             adam_beta2=float(train_config.get("adam_beta2", 0.95)),
             adam_epsilon=float(train_config.get("adam_epsilon", 1e-8)),
-            lr_scheduler_type=train_config.get("lr_scheduler_type", 'constant'),
-            warmup_ratio=float(train_config.get("warmup_ratio") or 0.0),
+            lr_scheduler_type=train_config.get("lr_scheduler_type", 'cosine'),
+            warmup_ratio=float(train_config.get("warmup_ratio") or 0.03),
             warmup_steps=int(train_config.get("warmup_steps", 0)),
+            warmup_start_lr=float(train_config.get("warmup_start_lr", 1e-4)),
             weight_decay=float(train_config.get("weight_decay", 0.1)),
             per_device_train_batch_size=int(micro_batch_size),
             per_device_eval_batch_size=int(micro_batch_size * 2),
@@ -222,7 +262,8 @@ class MIRARunner:
             optim=train_config.get('optim', 'adamw_torch'),
             torch_compile=train_config.get('torch_compile', False),
             dataloader_num_workers=train_config.get('dataloader_num_workers') or 2,
-            ddp_find_unused_parameters=False,
+            gradient_checkpointing_kwargs={"use_reentrant": False},
+            ddp_find_unused_parameters=train_config.get('ddp_find_unused_parameters', True),
 
             logging_dir=os.path.join(self.output_path, 'tb_logs'),
             save_only_model=train_config.get('save_only_model', True),
