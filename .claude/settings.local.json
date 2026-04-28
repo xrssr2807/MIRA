@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip show *)",
+      "Bash(huggingface-cli download *)",
+      "Bash(python *)",
+      "Bash(pip install *)"
+    ]
+  }
+}

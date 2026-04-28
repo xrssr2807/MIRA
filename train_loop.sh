@@ -2,7 +2,7 @@
 # Auto-restart training loop - resumes from latest checkpoint on crash
 
 OUTPUT_DIR="${MIRA_OUTPUT_DIR:-ppg_output}"
-MODEL_PATH_DEFAULT="Maple728/TimeMoE-50M"
+MODEL_PATH_DEFAULT="/home/bml/storage/mnt/v-044d0fb740b04ad3/org/WFM/TimeMoE-50M/"
 DATA_PATH="${MIRA_DATA_DIR:-ppg_full}"
 MAX_RESTARTS=10
 RESTART_COUNT=0
