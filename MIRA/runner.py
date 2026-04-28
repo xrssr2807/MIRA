@@ -66,10 +66,10 @@ class MIRARunner:
         kwargs['attn_implementation'] = attn
 
         if from_scatch:
-            config = MIRAConfig.from_pretrained(model_path, _attn_implementation=attn, local_files_only=True)
+            config = MIRAConfig.from_pretrained(model_path, _attn_implementation=attn)
             model = MIRAForPrediction(config)
         else:
-            model = MIRAForPrediction.from_pretrained(model_path, local_files_only=True, **kwargs)
+            model = MIRAForPrediction.from_pretrained(model_path, **kwargs)
         return model
 
     def train_model(self, from_scratch: bool = False, resume_from_checkpoint: str = None, **kwargs):
