@@ -7,7 +7,8 @@
       "Bash(pip install *)",
       "Bash(MIRA_LOG_FILE=2.txt MIRA_OUTPUT_DIR=ppg_output python *)",
       "Bash(python3 -c ' *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv)"
     ]
   }
 }

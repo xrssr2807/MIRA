@@ -144,24 +144,25 @@ def load_pkl_sequences(data_path, sample_size=None):
 
 
 def snap_and_dedup_times(t, snap=0.1):
-    """Snap and deduplicate times for CT-RoPE."""
+    """Snap and deduplicate times for CT-RoPE. Supports [B, seq_len]."""
     snapped = torch.round(t / snap) * snap
     eps = 1e-4
-    for i in range(1, snapped.numel()):
-        if snapped[0, i] <= snapped[0, i - 1]:
-            snapped[0, i] = snapped[0, i - 1] + eps
+    for b in range(snapped.shape[0]):
+        for i in range(1, snapped.shape[1]):
+            if snapped[b, i] <= snapped[b, i - 1]:
+                snapped[b, i] = snapped[b, i - 1] + eps
     return snapped
 
 
 def mira_predict_autoreg(model, values, raw_times, C, P):
-    """Autoregressive prediction: context C -> predict P steps."""
+    """Autoregressive prediction: context C -> predict P steps. Supports batched input."""
     device = next(model.parameters()).device
     values = values.to(device)
     raw_times = raw_times.to(device)
 
     # Normalize
-    mean = values.mean()
-    std = values.std() + 1e-6
+    mean = values.mean(dim=1, keepdim=True)  # [B, 1]
+    std = values.std(dim=1, keepdim=True) + 1e-6  # [B, 1]
     values_norm = (values - mean) / std
 
     # Time normalization for CT-RoPE (matches training)
@@ -186,44 +187,71 @@ def mira_predict_autoreg(model, values, raw_times, C, P):
         inp_times = cur_times
 
         with torch.no_grad():
-            out = model(
-                input_ids=inp_vals,
-                time_values=inp_times,
-                return_dict=True,
-            )
+            with torch.autocast("cuda", enabled=torch.cuda.is_available()):
+                out = model(
+                    input_ids=inp_vals,
+                    time_values=inp_times,
+                    return_dict=True,
+                )
         next_norm = out.logits[:, -1, :]
-        preds_norm.append(next_norm.squeeze(0))
+        preds_norm.append(next_norm)
 
         next_t = future_times[:, i:i + 1]
         cur_vals = torch.cat([cur_vals, next_norm], dim=1)
         cur_times = torch.cat([cur_times, next_t], dim=1)
 
-    preds_norm = torch.stack(preds_norm, dim=1)
+    preds_norm = torch.stack(preds_norm, dim=1)  # [B, P, D]
     preds = preds_norm * std + mean
-    return preds.squeeze(0), mean, std
+    return preds, mean, std
 
 
-def evaluate_one_window(model, seq, times, C, P, device):
-    """Evaluate one sequence with context C, predict P."""
-    T = len(seq)
-    if T < C + P:
-        return None, None, None, None
+def evaluate_batch(model, seq_list, time_list, C, P, device):
+    """Evaluate a batch of sequences at once. Returns list of (pred, gt, rmse, mae)."""
+    batch_size = len(seq_list)
 
-    hist = torch.from_numpy(seq[:C + P]).to(device)
-    t_hist = torch.from_numpy(times[:C + P]).to(device)
+    # Pad sequences to same length (C+P)
+    target_len = C + P
+    hist_list, t_hist_list = [], []
+    valid_mask = []
 
+    for seq, tms in zip(seq_list, time_list):
+        if len(seq) < target_len:
+            valid_mask.append(False)
+            continue
+        valid_mask.append(True)
+        hist_list.append(torch.from_numpy(seq[:target_len]).float())
+        t_hist_list.append(torch.from_numpy(tms[:target_len]).float())
+
+    if not hist_list:
+        return []
+
+    hist = torch.stack(hist_list).to(device)        # [B, C+P]
+    t_hist = torch.stack(t_hist_list).to(device)    # [B, C+P]
+
+    # Autoregressive prediction
     pred, mean, std = mira_predict_autoreg(
-        model, hist.unsqueeze(0), t_hist.unsqueeze(0), C, P
-    )
-    gt = hist[C:C + P]
+        model, hist, t_hist, C, P
+    )  # [B, P, D]
 
-    rmse = torch.sqrt(F.mse_loss(pred, gt)).item()
-    mae = F.l1_loss(pred, gt).item()
-    return pred.cpu(), gt.cpu(), rmse, mae
+    gt = hist[:, C:C + P]  # [B, P, D]
+
+    # Compute per-sample metrics
+    results = []
+    for i in range(batch_size):
+        if not valid_mask[i]:
+            results.append(None)
+            continue
+        p = pred[i]
+        g = gt[i]
+        rmse = torch.sqrt(F.mse_loss(p, g)).item()
+        mae = F.l1_loss(p, g).item()
+        results.append((p.cpu(), g.cpu(), rmse, mae))
+
+    return results
 
 
-def rolling_eval(model, seq_list, time_list, settings, device, viz_dir=None):
-    """Rolling evaluation across settings."""
+def rolling_eval(model, seq_list, time_list, settings, device, batch_size=64, viz_dir=None):
+    """Rolling evaluation across settings, with batched inference."""
     results = {}
     total_seqs = len(seq_list)
 
@@ -233,25 +261,33 @@ def rolling_eval(model, seq_list, time_list, settings, device, viz_dir=None):
         viz_preds, viz_gts, viz_contexts = [], [], []
         skipped = 0
 
-        iterator = enumerate(zip(seq_list, time_list))
+        # Process in batches
+        n_batches = (total_seqs + batch_size - 1) // batch_size
+        iterator = range(n_batches)
         if HAS_TQDM:
-            iterator = tqdm(iterator, total=total_seqs, desc=f"  {C}->{P}")
+            iterator = tqdm(iterator, total=n_batches, desc=f"  {C}->{P}")
 
-        for idx, (seq, tms) in iterator:
-            pred, gt, rmse, mae = evaluate_one_window(model, seq, tms, C, P, device)
-            if rmse is None:
-                skipped += 1
-                continue
-            rmses.append(rmse)
-            maes.append(mae)
+        for batch_idx in iterator:
+            start = batch_idx * batch_size
+            end = min(start + batch_size, total_seqs)
+            batch_seqs = seq_list[start:end]
+            batch_times = time_list[start:end]
 
-            if viz_count < 5 and viz_dir:
-                viz_preds.append(pred.numpy())
-                viz_gts.append(gt.numpy())
-                viz_contexts.append(seq[:C])          # 直接传入切片即可
-                viz_count += 1
-                
-            
+            batch_results = evaluate_batch(model, batch_seqs, batch_times, C, P, device)
+
+            for i, res in enumerate(batch_results):
+                if res is None:
+                    skipped += 1
+                    continue
+                pred, gt, rmse, mae = res
+                rmses.append(rmse)
+                maes.append(mae)
+
+                if viz_count < 5 and viz_dir:
+                    viz_preds.append(pred.numpy())
+                    viz_gts.append(gt.numpy())
+                    viz_contexts.append(batch_seqs[i][:C])
+                    viz_count += 1
 
         avg_rmse = np.mean(rmses) if rmses else float("nan")
         avg_mae = np.mean(maes) if maes else float("nan")
@@ -312,6 +348,8 @@ def main():
                         help="Max sequences to evaluate (default 2000, set --all for full 46827)")
     parser.add_argument("--all", action="store_true",
                         help="Evaluate all 46827 sequences (slow)")
+    parser.add_argument("--batch_size", "-b", type=int, default=64,
+                        help="Batch size for inference (default 64)")
     parser.add_argument("--viz_dir", type=str, default="./eval_viz", help="Visualization output dir")
     args = parser.parse_args()
 
@@ -334,6 +372,15 @@ def main():
 
     model = MIRAForPrediction.from_pretrained(args.model).to(device)
     model.eval()
+
+    # Optional: torch.compile for speedup
+    if device == "cuda" and hasattr(torch, "compile"):
+        print("[INFO] Compiling model with torch.compile...")
+        try:
+            model = torch.compile(model)
+            print("[INFO] Model compiled successfully.")
+        except Exception as e:
+            print(f"[INFO] torch.compile failed: {e}, using eager mode.")
 
     os.remove(tmp_config_path)
     print(f"[INFO] Model loaded successfully.")
@@ -360,7 +407,7 @@ def main():
 
     print("\n===== Running Evaluation =====")
     t0 = time.time()
-    results = rolling_eval(model, seq_list, time_list, settings, device, viz_dir=args.viz_dir)
+    results = rolling_eval(model, seq_list, time_list, settings, device, batch_size=args.batch_size, viz_dir=args.viz_dir)
     print(f"\n[INFO] Evaluation took {time.time()-t0:.1f}s")
 
     print("\n===== FINAL SUMMARY =====")
