@@ -42,8 +42,8 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
         --output_path "$OUTPUT_DIR" \
         --max_length 2048 \
         --normalization_method zero \
-        --attn_implementation flash_attention_2 \
-        --micro_batch_size 256 \
+        --attn_implementation eager \
+        --micro_batch_size 64 \
         --global_batch_size 512 \
         --precision bf16 \
         --save_strategy steps \
