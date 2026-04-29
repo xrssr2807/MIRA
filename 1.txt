@@ -1,54 +1,55 @@
-[rank0]:[W429 01:21:48.971185086 reducer.cpp:1400] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
-{'loss': 0.3656, 'grad_norm': 859.846923828125, 'learning_rate': 6.551086956521738e-07, 'epoch': 0.0}                                                                                                                                 
-{'loss': 0.2466, 'grad_norm': 71.3822021484375, 'learning_rate': 6.524086956521739e-06, 'epoch': 0.02}                                                                                                                                
-{'loss': 0.2214, 'grad_norm': 27.809274673461914, 'learning_rate': 1.304517391304348e-05, 'epoch': 0.04}                                                                                                                              
-{'loss': 0.1889, 'grad_norm': 1.2432138919830322, 'learning_rate': 1.9566260869565216e-05, 'epoch': 0.07}                                                                                                                             
-{'loss': 0.1704, 'grad_norm': 1.0842649936676025, 'learning_rate': 2.608734782608696e-05, 'epoch': 0.09}                                                                                                                              
-{'loss': 0.1833, 'grad_norm': 8.256056785583496, 'learning_rate': 2.999278001821427e-05, 'epoch': 0.11}                                                                                                                               
-{'loss': 0.1898, 'grad_norm': 1.324235439300537, 'learning_rate': 2.9911635023204423e-05, 'epoch': 0.13}                                                                                                                              
-{'loss': 0.1992, 'grad_norm': 0.7266985177993774, 'learning_rate': 2.97408097005962e-05, 'epoch': 0.16}                                                                                                                               
-{'loss': 0.1668, 'grad_norm': 0.7702636122703552, 'learning_rate': 2.948133141397983e-05, 'epoch': 0.18}                                                                                                                              
-{'loss': 0.1736, 'grad_norm': 0.14603719115257263, 'learning_rate': 2.9134760696302386e-05, 'epoch': 0.2}                                                                                                                             
-{'loss': 0.1736, 'grad_norm': 0.07345762103796005, 'learning_rate': 2.8703181864639013e-05, 'epoch': 0.22}                                                                                                                            
-{'loss': 0.1715, 'grad_norm': 0.06082003191113472, 'learning_rate': 2.8189190484864814e-05, 'epoch': 0.24}                                                                                                                            
-{'loss': 0.1605, 'grad_norm': 0.15443798899650574, 'learning_rate': 2.7595877761616246e-05, 'epoch': 0.27}                                                                                                                            
-{'loss': 0.172, 'grad_norm': 0.15111207962036133, 'learning_rate': 2.6926811947422717e-05, 'epoch': 0.29}                                                                                                                             
-{'loss': 0.1794, 'grad_norm': 20.023250579833984, 'learning_rate': 2.6186016882816027e-05, 'epoch': 0.31}                                                                                                                             
-{'loss': 0.2432, 'grad_norm': 4.436034679412842, 'learning_rate': 2.5377947796479936e-05, 'epoch': 0.33}                                                                                                                              
-{'loss': 0.1529, 'grad_norm': 1.5693918466567993, 'learning_rate': 2.4507464510980652e-05, 'epoch': 0.35}                                                                                                                             
-{'loss': 0.1279, 'grad_norm': 2.0457003116607666, 'learning_rate': 2.3579802215222076e-05, 'epoch': 0.38}                                                                                                                             
-{'loss': 0.1355, 'grad_norm': 2.9832870960235596, 'learning_rate': 2.2600539979403734e-05, 'epoch': 0.4}                                                                                                                              
-{'loss': 0.1042, 'grad_norm': 2.070120096206665, 'learning_rate': 2.157556720183616e-05, 'epoch': 0.42}                                                                                                                               
-{'loss': 0.1407, 'grad_norm': 1.7145856618881226, 'learning_rate': 2.0511048189406472e-05, 'epoch': 0.44}                                                                                                                             
-{'loss': 0.0966, 'grad_norm': 1.026340126991272, 'learning_rate': 1.9413385084711425e-05, 'epoch': 0.47}                                                                                                                              
-{'loss': 0.098, 'grad_norm': 1.5328320264816284, 'learning_rate': 1.828917936281855e-05, 'epoch': 0.49}                                                                                                                               
-{'loss': 0.0856, 'grad_norm': 1.0751700401306152, 'learning_rate': 1.7145192129218313e-05, 'epoch': 0.51}                                                                                                                             
-{'loss': 0.0942, 'grad_norm': 1.2466554641723633, 'learning_rate': 1.5988303457740178e-05, 'epoch': 0.53}                                                                                                                             
-{'loss': 0.0794, 'grad_norm': 1.5468227863311768, 'learning_rate': 1.4825471012979048e-05, 'epoch': 0.55}                                                                                                                             
-{'loss': 0.083, 'grad_norm': 2.483020544052124, 'learning_rate': 1.366368820608171e-05, 'epoch': 0.58}                                                                                                                                
-{'loss': 0.1091, 'grad_norm': 1.9337244033813477, 'learning_rate': 1.2509942135549344e-05, 'epoch': 0.6}                                                                                                                              
-{'loss': 0.0777, 'grad_norm': 1.8425692319869995, 'learning_rate': 1.1371171566004986e-05, 'epoch': 0.62}                                                                                                                             
-{'loss': 0.0859, 'grad_norm': 1.8701661825180054, 'learning_rate': 1.025422519764665e-05, 'epoch': 0.64}                                                                                                                              
-{'loss': 0.0747, 'grad_norm': 1.0993075370788574, 'learning_rate': 9.165820477358491e-06, 'epoch': 0.67}                                                                                                                              
-{'loss': 0.079, 'grad_norm': 1.6461181640625, 'learning_rate': 8.112503199194821e-06, 'epoch': 0.69}                                                                                                                                  
-{'loss': 0.0695, 'grad_norm': 1.332000732421875, 'learning_rate': 7.10060813720449e-06, 'epoch': 0.71}                                                                                                                                
-{'loss': 0.0678, 'grad_norm': 0.567375659942627, 'learning_rate': 6.136220947354333e-06, 'epoch': 0.73}                                                                                                                               
-{'loss': 0.0938, 'grad_norm': 0.3804319202899933, 'learning_rate': 5.2251415676781726e-06, 'epoch': 0.75}                                                                                                                             
-{'loss': 0.075, 'grad_norm': 1.381378412246704, 'learning_rate': 4.372849336767004e-06, 'epoch': 0.78}                                                                                                                                
-{'loss': 0.0725, 'grad_norm': 1.1440520286560059, 'learning_rate': 3.5844700403819935e-06, 'epoch': 0.8}                                                                                                                              
-{'loss': 0.0671, 'grad_norm': 0.9366651773452759, 'learning_rate': 2.86474508437579e-06, 'epoch': 0.82}                                                                                                                               
-{'loss': 0.0914, 'grad_norm': 0.6143122911453247, 'learning_rate': 2.2180029793198313e-06, 'epoch': 0.84}                                                                                                                             
-{'loss': 0.0766, 'grad_norm': 0.7748085260391235, 'learning_rate': 1.6481333083324563e-06, 'epoch': 0.86}                                                                                                                             
-{'loss': 0.0754, 'grad_norm': 0.429444283246994, 'learning_rate': 1.1585633346683655e-06, 'epoch': 0.89}                                                                                                                              
-{'loss': 0.0662, 'grad_norm': 0.5975189208984375, 'learning_rate': 7.52237389754138e-07, 'epoch': 0.91}                                                                                                                               
-{'loss': 0.0742, 'grad_norm': 0.39874833822250366, 'learning_rate': 4.315991656325946e-07, 'epoch': 0.93}                                                                                                                             
-{'loss': 0.0975, 'grad_norm': 0.2916395366191864, 'learning_rate': 1.985770183113117e-07, 'epoch': 0.95}                                                                                                                              
-{'loss': 0.0742, 'grad_norm': 0.21109208464622498, 'learning_rate': 5.4572370402694583e-08, 'epoch': 0.98}                                                                                                                            
-{'loss': 0.0716, 'grad_norm': 0.212370365858078, 'learning_rate': 4.5128280348638583e-10, 'epoch': 1.0}                                                                                                                               
-{'train_runtime': 11821.0828, 'train_samples_per_second': 19.531, 'train_steps_per_second': 0.038, 'train_loss': 0.12321905408492374, 'epoch': 1.0}                                                                                   
-100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 451/451 [3:17:01<00:00, 26.21s/it]
-2026-04-29 04:38:38,587 - log_util.py[pid:27917;line:57:log_in_local_rank_0] - INFO: Saving model to /home/bml/storage/MIRA/ppg_output
-[rank0]:[W429 04:38:38.701074079 ProcessGroupNCCL.cpp:1250] Warning: WARNING: process group has NOT been destroyed before we destruct ProcessGroupNCCL. On normal program exit, the application should call destroy_process_group to ensure that any pending NCCL operations have finished in this process. In rare cases this process can exit before this point and block the progress of another member of the process group. This constraint has always been present,  but this warning has only been added since PyTorch 2.4 (function operator())
-[Wed Apr 29 04:38:40 AM CST 2026] Training exited with code: 0
-[Wed Apr 29 04:38:40 AM CST 2026] Training completed successfully!
+(mira) bml@jupyter-ea1267d94f5a09a2-0:~/storage/MIRA$ python eval_pkl.py       --model ./ppg_output       --data /home/bml/storage/mnt/v-044d0fb740b04ad3/org/WFM/processed_dataset/data/       --viz_dir ./eval_viz
+[INFO] Device: cuda
+[INFO] Loading model from ./ppg_output...
+Some weights of MIRAForPrediction were not initialized from the model checkpoint at ./ppg_output and are newly initialized: ['ode_extrapolation_block.ode_func.net.0.bias', 'ode_extrapolation_block.ode_func.net.0.weight', 'ode_extrapolation_block.ode_func.net.2.bias', 'ode_extrapolation_block.ode_func.net.2.weight', 'ode_extrapolation_block.ode_func.net.4.bias', 'ode_extrapolation_block.ode_func.net.4.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+[INFO] Compiling model with torch.compile...
+[INFO] Model compiled successfully.
+[INFO] Model loaded successfully.
+[INFO] Loading data from /home/bml/storage/mnt/v-044d0fb740b04ad3/org/WFM/processed_dataset/data/...
+  Found 46827 .pkl files
+  Detected format: single_dict (first file: MPA_181220181216_0.pkl)
+  Total: 46827 sequences, 1000 points each
+  Sampled 2000 sequences (seed=42)
+[INFO] Data loading took 80.1s
+[INFO] Evaluating 2000 sequences
+
+===== Running Evaluation =====
+  48->24:   0%|                                                                                                                                                                                                | 0/32 [00:00<?, ?it/s]W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] Graph break from `Tensor.item()`, consider setting:
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     torch._dynamo.config.capture_scalar_outputs = True
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] or:
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     env TORCHDYNAMO_CAPTURE_SCALAR_OUTPUTS=1
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] to include these operations in the captured graph.
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] 
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] Graph break: from user code at:
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]   File "/home/bml/storage/MIRA/MIRA/models/modeling_mira.py", line 1022, in torch_dynamo_resume_in_forward_at_977
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     layer_outputs = decoder_layer(
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]   File "/home/bml/storage/MIRA/MIRA/models/modeling_mira.py", line 837, in forward
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     hidden_states, self_attn_weights, present_key_value = self.self_attn(
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]   File "/home/bml/storage/MIRA/MIRA/models/modeling_mira.py", line 517, in forward
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     query_states, key_states, cos, sin = self.rotary_emb(query_states, key_states, time_values_for_rope)
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]   File "/home/bml/storage/MIRA/MIRA/models/modeling_mira.py", line 274, in forward
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     cos, sin = self._compute_cos_sin(time_values, q.device, q.dtype) # Shape [B, 1, L, D]
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]   File "/home/bml/storage/MIRA/MIRA/models/modeling_mira.py", line 231, in _compute_cos_sin
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0]     current_hash = (t.sum().item(), t.shape, device, dtype)
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] 
+W0429 16:11:55.455000 78519 torch/_dynamo/variables/tensor.py:776] [11/0] 
+W0429 16:12:15.053000 78519 torch/_dynamo/convert_frame.py:844] [15/8] torch._dynamo hit config.cache_size_limit (8)
+W0429 16:12:15.053000 78519 torch/_dynamo/convert_frame.py:844] [15/8]    function: 'forward' (/home/bml/storage/MIRA/MIRA/models/modeling_mira.py:473)
+W0429 16:12:15.053000 78519 torch/_dynamo/convert_frame.py:844] [15/8]    last reason: 15/0: L['self'].layer_idx == 0                                    
+W0429 16:12:15.053000 78519 torch/_dynamo/convert_frame.py:844] [15/8] To log all recompilation reasons, use TORCH_LOGS="recompiles".
+W0429 16:12:15.053000 78519 torch/_dynamo/convert_frame.py:844] [15/8] To diagnose recompilation issues, see https://pytorch.org/docs/main/torch.compiler_troubleshooting.html.
+  48->24:   0%|                                                                                                                                                                                                | 0/32 [00:50<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/bml/storage/MIRA/eval_pkl.py", line 434, in <module>
+    main()
+  File "/home/bml/storage/MIRA/eval_pkl.py", line 410, in main
+    results = rolling_eval(model, seq_list, time_list, settings, device, batch_size=args.batch_size, viz_dir=args.viz_dir)
+  File "/home/bml/storage/MIRA/eval_pkl.py", line 276, in rolling_eval
+    batch_results = evaluate_batch(model, batch_seqs, batch_times, C, P, device)
+  File "/home/bml/storage/MIRA/eval_pkl.py", line 232, in evaluate_batch
+    pred, mean, std = mira_predict_autoreg(
+  File "/home/bml/storage/MIRA/eval_pkl.py", line 204, in mira_predict_autoreg
+    preds = preds_norm * std + mean
+RuntimeError: The size of tensor a (24) must match the size of tensor b (64) at non-singleton dimension 1
 
