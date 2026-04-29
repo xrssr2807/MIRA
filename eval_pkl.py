@@ -201,7 +201,7 @@ def mira_predict_autoreg(model, values, raw_times, C, P):
         cur_times = torch.cat([cur_times, next_t], dim=1)
 
     preds_norm = torch.stack(preds_norm, dim=1)  # [B, P, D]
-    preds = preds_norm * std + mean
+    preds = preds_norm * std.unsqueeze(1) + mean.unsqueeze(1)
     return preds, mean, std
 
 
@@ -372,15 +372,6 @@ def main():
 
     model = MIRAForPrediction.from_pretrained(args.model).to(device)
     model.eval()
-
-    # Optional: torch.compile for speedup
-    if device == "cuda" and hasattr(torch, "compile"):
-        print("[INFO] Compiling model with torch.compile...")
-        try:
-            model = torch.compile(model)
-            print("[INFO] Model compiled successfully.")
-        except Exception as e:
-            print(f"[INFO] torch.compile failed: {e}, using eager mode.")
 
     os.remove(tmp_config_path)
     print(f"[INFO] Model loaded successfully.")
