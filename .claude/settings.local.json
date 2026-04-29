@@ -5,7 +5,9 @@
       "Bash(huggingface-cli download *)",
       "Bash(python *)",
       "Bash(pip install *)",
-      "Bash(MIRA_LOG_FILE=2.txt MIRA_OUTPUT_DIR=ppg_output python *)"
+      "Bash(MIRA_LOG_FILE=2.txt MIRA_OUTPUT_DIR=ppg_output python *)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 *)"
     ]
   }
 }

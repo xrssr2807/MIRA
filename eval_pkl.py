@@ -44,18 +44,21 @@ def load_pkl_sequences(data_path, sample_size=None):
 
     seqs, times = [], []
     total_files = 0
-    failed_files = 0
+    skipped_items = 0
 
     # Peek first file to detect structure
     with open(pkl_files[0], 'rb') as f:
         first_item = pickle.load(f)
 
-    if isinstance(first_item, dict) and "data" in first_item:
-        fmt = "list_of_dicts"
+    # Determine format
+    if isinstance(first_item, list) and len(first_item) > 0 and isinstance(first_item[0], dict):
+        fmt = "list_of_dicts"  # [{"data": ...}, {"data": ...}]
+    elif isinstance(first_item, dict) and "data" in first_item:
+        fmt = "single_dict"     # {"uid": ..., "data": ndarray, "label": ...}
     elif isinstance(first_item, list) and len(first_item) > 0:
-        fmt = "list"
+        fmt = "list"            # [ndarray, ndarray, ...]
     else:
-        fmt = "direct"
+        fmt = "direct"          # ndarray directly
 
     print(f"  Detected format: {fmt} (first file: {os.path.basename(pkl_files[0])})")
 
@@ -65,41 +68,64 @@ def load_pkl_sequences(data_path, sample_size=None):
             with open(pkl_path, 'rb') as f:
                 items = pickle.load(f)
 
-            def process_data(data):
-                nonlocal seqs, times
-                if isinstance(data, dict):
-                    data = data.get("data", data.get("values", data.get("signal", None)))
-                    if data is None:
-                        return
+            if fmt == "list_of_dicts":
+                for item in items:
+                    if isinstance(item, dict) and "data" in item:
+                        data = item["data"]
+                    else:
+                        data = item
+                    data = np.array(data, dtype=np.float32)
+                    if data.ndim == 2:
+                        for ch in range(data.shape[0]):
+                            seqs.append(data[ch].astype(np.float32))
+                            times.append(np.arange(len(data[ch]), dtype=np.float32) * 10.0)
+                    elif data.ndim == 1:
+                        seqs.append(data.astype(np.float32))
+                        times.append(np.arange(len(data), dtype=np.float32) * 10.0)
+                    else:
+                        skipped_items += 1
+
+            elif fmt == "single_dict":
+                data = items.get("data", items)
                 data = np.array(data, dtype=np.float32)
                 if data.ndim == 2:
                     for ch in range(data.shape[0]):
-                        seq = data[ch].astype(np.float32)
-                        t = np.arange(len(seq), dtype=np.float32) * 10.0
-                        seqs.append(seq)
-                        times.append(t)
+                        seqs.append(data[ch].astype(np.float32))
+                        times.append(np.arange(len(data[ch]), dtype=np.float32) * 10.0)
                 elif data.ndim == 1:
-                    seq = data.astype(np.float32)
-                    t = np.arange(len(seq), dtype=np.float32) * 10.0
-                    seqs.append(seq)
-                    times.append(t)
+                    seqs.append(data.astype(np.float32))
+                    times.append(np.arange(len(data), dtype=np.float32) * 10.0)
+                else:
+                    skipped_items += 1
 
-            if fmt == "list_of_dicts":
-                for item in items:
-                    process_data(item)
             elif fmt == "list":
                 for item in items:
-                    process_data(item)
+                    data = np.array(item, dtype=np.float32)
+                    if data.ndim == 2:
+                        for ch in range(data.shape[0]):
+                            seqs.append(data[ch].astype(np.float32))
+                            times.append(np.arange(len(data[ch]), dtype=np.float32) * 10.0)
+                    elif data.ndim == 1:
+                        seqs.append(data.astype(np.float32))
+                        times.append(np.arange(len(data), dtype=np.float32) * 10.0)
+                    else:
+                        skipped_items += 1
+
             elif fmt == "direct":
-                process_data(items)
+                data = np.array(items, dtype=np.float32)
+                if data.ndim == 2:
+                    for ch in range(data.shape[0]):
+                        seqs.append(data[ch].astype(np.float32))
+                        times.append(np.arange(len(data[ch]), dtype=np.float32) * 10.0)
+                elif data.ndim == 1:
+                    seqs.append(data.astype(np.float32))
+                    times.append(np.arange(len(data), dtype=np.float32) * 10.0)
+                else:
+                    skipped_items += 1
 
         except Exception as e:
-            failed_files += 1
-            if failed_files <= 3:
-                print(f"  Warning: failed to load {os.path.basename(pkl_path)}: {e}")
-
-    if failed_files > 0:
-        print(f"  {failed_files}/{total_files} files failed to load")
+            if total_files <= 5:
+                print(f"  Warning: failed {os.path.basename(pkl_path)}: {e}")
 
     if not seqs:
         raise ValueError("No sequences loaded. Check .pkl file structure.")
@@ -318,14 +344,14 @@ def main():
     print(f"[INFO] Evaluating {len(seq_list)} sequences")
 
     # --- Evaluation settings ---
-    # 3000 points per seq -> can support longer windows
+    # Adjusted for data with ~1000 points per seq
     settings = [
         (48, 24),     # 480ms context  -> 240ms  pred (short)
         (96, 48),     # 960ms  context -> 480ms  pred (medium)
         (128, 64),    # 1.28s  context -> 640ms  pred (longer)
         (256, 128),   # 2.56s  context -> 1.28s  pred (long)
         (512, 256),   # 5.12s  context -> 2.56s  pred (very long)
-        (1024, 512),  # 10.24s context -> 5.12s  pred (extended)
+        (768, 192),   # 7.68s  context -> 1.92s  pred (extended, max for 1000pt seqs)
     ]
 
     os.makedirs(args.viz_dir, exist_ok=True)
