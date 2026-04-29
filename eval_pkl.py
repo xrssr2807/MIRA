@@ -241,8 +241,8 @@ def evaluate_batch(model, seq_list, time_list, C, P, device):
         if not valid_mask[i]:
             results.append(None)
             continue
-        p = pred[i]
-        g = gt[i]
+        p = pred[i].squeeze(-1)
+        g = gt[i].squeeze(-1)
         rmse = torch.sqrt(F.mse_loss(p, g)).item()
         mae = F.l1_loss(p, g).item()
         results.append((p.cpu(), g.cpu(), rmse, mae))
