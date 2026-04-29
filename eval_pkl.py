@@ -203,26 +203,26 @@ def mira_predict_autoreg(model, values, raw_times, C, P):
     return preds.squeeze(0), mean, std
 
 
-def evaluate_one_window(model, seq, times, C, P):
+def evaluate_one_window(model, seq, times, C, P, device):
     """Evaluate one sequence with context C, predict P."""
     T = len(seq)
     if T < C + P:
         return None, None, None, None
 
-    hist = seq[:C + P]
-    t_hist = times[:C + P]
+    hist = torch.from_numpy(seq[:C + P]).to(device)
+    t_hist = torch.from_numpy(times[:C + P]).to(device)
 
     pred, mean, std = mira_predict_autoreg(
         model, hist.unsqueeze(0), t_hist.unsqueeze(0), C, P
     )
-    gt = hist[C:C + P].to(next(model.parameters()).device)
+    gt = hist[C:C + P]
 
     rmse = torch.sqrt(F.mse_loss(pred, gt)).item()
     mae = F.l1_loss(pred, gt).item()
     return pred.cpu(), gt.cpu(), rmse, mae
 
 
-def rolling_eval(model, seq_list, time_list, settings, viz_dir=None):
+def rolling_eval(model, seq_list, time_list, settings, device, viz_dir=None):
     """Rolling evaluation across settings."""
     results = {}
     total_seqs = len(seq_list)
@@ -238,7 +238,7 @@ def rolling_eval(model, seq_list, time_list, settings, viz_dir=None):
             iterator = tqdm(iterator, total=total_seqs, desc=f"  {C}->{P}")
 
         for idx, (seq, tms) in iterator:
-            pred, gt, rmse, mae = evaluate_one_window(model, seq, tms, C, P)
+            pred, gt, rmse, mae = evaluate_one_window(model, seq, tms, C, P, device)
             if rmse is None:
                 skipped += 1
                 continue
@@ -248,8 +248,10 @@ def rolling_eval(model, seq_list, time_list, settings, viz_dir=None):
             if viz_count < 5 and viz_dir:
                 viz_preds.append(pred.numpy())
                 viz_gts.append(gt.numpy())
-                viz_contexts.append(seq[:C].numpy())
+                viz_contexts.append(seq[:C])          # 直接传入切片即可
                 viz_count += 1
+                
+            
 
         avg_rmse = np.mean(rmses) if rmses else float("nan")
         avg_mae = np.mean(maes) if maes else float("nan")
@@ -358,7 +360,7 @@ def main():
 
     print("\n===== Running Evaluation =====")
     t0 = time.time()
-    results = rolling_eval(model, seq_list, time_list, settings, viz_dir=args.viz_dir)
+    results = rolling_eval(model, seq_list, time_list, settings, device, viz_dir=args.viz_dir)
     print(f"\n[INFO] Evaluation took {time.time()-t0:.1f}s")
 
     print("\n===== FINAL SUMMARY =====")
