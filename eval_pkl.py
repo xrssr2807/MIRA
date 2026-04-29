@@ -321,9 +321,10 @@ def rolling_eval(model, seq_list, time_list, settings, device, batch_size=64, vi
                 gt = viz_gts[ax_i]
                 pred = viz_preds[ax_i]
 
-                ctx_start = max(0, C - 20)
-                ctx_x = list(range(ctx_start, C))
-                ctx_y = ctx[ctx_start - C:].tolist() if ctx_start > 0 else ctx.tolist()
+                # Context: last 20 points + first point of GT to ensure visual continuity
+                ctx_len = min(20, C)
+                ctx_x = list(range(C - ctx_len, C + 1))
+                ctx_y = ctx[-ctx_len:].tolist() + [gt[0]]
 
                 ax.plot(ctx_x, ctx_y, 'b-', linewidth=2, label='Context')
                 ax.plot(range(C, C + P), gt, 'b--', linewidth=2, label='Ground Truth')
