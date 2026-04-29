@@ -30,7 +30,7 @@ from MIRA.models.utils_time_normalization import normalize_time_for_ctrope
 
 
 def load_pkl_sequences(data_path, sample_size=None):
-    """Load sequences from .pkl files with lazy per-file loading."""
+    """Load sequences from .pkl files with flexible structure detection."""
     if os.path.isfile(data_path) and data_path.endswith('.pkl'):
         pkl_files = [data_path]
     elif os.path.isdir(data_path):
@@ -43,26 +43,66 @@ def load_pkl_sequences(data_path, sample_size=None):
     print(f"  Found {len(pkl_files)} .pkl files")
 
     seqs, times = [], []
+    total_files = 0
+    failed_files = 0
+
+    # Peek first file to detect structure
+    with open(pkl_files[0], 'rb') as f:
+        first_item = pickle.load(f)
+
+    if isinstance(first_item, dict) and "data" in first_item:
+        fmt = "list_of_dicts"
+    elif isinstance(first_item, list) and len(first_item) > 0:
+        fmt = "list"
+    else:
+        fmt = "direct"
+
+    print(f"  Detected format: {fmt} (first file: {os.path.basename(pkl_files[0])})")
+
     for pkl_path in pkl_files:
-        with open(pkl_path, 'rb') as f:
-            items = pickle.load(f)
-        count = 0
-        for item in items:
-            data = item["data"]
-            if data.ndim == 2:
-                for ch in range(data.shape[0]):
-                    seq = data[ch].astype(np.float32)
+        total_files += 1
+        try:
+            with open(pkl_path, 'rb') as f:
+                items = pickle.load(f)
+
+            def process_data(data):
+                nonlocal seqs, times
+                if isinstance(data, dict):
+                    data = data.get("data", data.get("values", data.get("signal", None)))
+                    if data is None:
+                        return
+                data = np.array(data, dtype=np.float32)
+                if data.ndim == 2:
+                    for ch in range(data.shape[0]):
+                        seq = data[ch].astype(np.float32)
+                        t = np.arange(len(seq), dtype=np.float32) * 10.0
+                        seqs.append(seq)
+                        times.append(t)
+                elif data.ndim == 1:
+                    seq = data.astype(np.float32)
                     t = np.arange(len(seq), dtype=np.float32) * 10.0
                     seqs.append(seq)
                     times.append(t)
-                    count += 1
-            elif data.ndim == 1:
-                seq = data.astype(np.float32)
-                t = np.arange(len(seq), dtype=np.float32) * 10.0
-                seqs.append(seq)
-                times.append(t)
-                count += 1
-        print(f"  Loaded {count} seqs from {os.path.basename(pkl_path)}")
+
+            if fmt == "list_of_dicts":
+                for item in items:
+                    process_data(item)
+            elif fmt == "list":
+                for item in items:
+                    process_data(item)
+            elif fmt == "direct":
+                process_data(items)
+
+        except Exception as e:
+            failed_files += 1
+            if failed_files <= 3:
+                print(f"  Warning: failed to load {os.path.basename(pkl_path)}: {e}")
+
+    if failed_files > 0:
+        print(f"  {failed_files}/{total_files} files failed to load")
+
+    if not seqs:
+        raise ValueError("No sequences loaded. Check .pkl file structure.")
 
     print(f"  Total: {len(seqs)} sequences, {len(seqs[0])} points each")
 
