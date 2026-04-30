@@ -1,7 +1,23 @@
-pyyaml
+# Core
 numpy
 pandas
+pyyaml
+tqdm
+
+# Deep Learning
+torch
+torchdiffeq
+
+# Transformers & Training
+transformers>=4.40.1
+datasets>=2.18.0
+accelerate>=0.28.0
+
+# Machine Learning
 scikit-learn
-transformers==4.40.1
-datasets==2.18.0
-accelerate==0.28.0
+
+# Visualization
+matplotlib
+
+# Optional: Flash Attention for faster training (requires CUDA)
+# flash-attn  # pip install flash-attn --no-build-isolation

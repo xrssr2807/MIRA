@@ -33,6 +33,9 @@ class MIRAConfig(PretrainedConfig):
             use_dense: bool = False,
             
 
+            # Classification
+            num_classes: int = 2,
+
             # Time/Positional Encoding
             time_aware_rotary: bool = True,
             rope_theta: int = 10000,
@@ -80,6 +83,7 @@ class MIRAConfig(PretrainedConfig):
         self.rms_norm_eps = rms_norm_eps
         self.use_cache = use_cache
         self.use_dense = use_dense
+        self.num_classes = num_classes
 
 
         # Time/Positional Encoding 

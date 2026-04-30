@@ -16,7 +16,7 @@ import torch.nn.functional as F
 from transformers import PreTrainedModel, Cache, DynamicCache, StaticCache
 from transformers.activations import ACT2FN
 from transformers.modeling_attn_mask_utils import _prepare_4d_causal_attention_mask
-from transformers.modeling_outputs import MoeModelOutputWithPast, MoeCausalLMOutputWithPast
+from transformers.modeling_outputs import MoeModelOutputWithPast, MoeCausalLMOutputWithPast, SequenceClassifierOutputWithPast
 from transformers.utils import logging, is_flash_attn_2_available, is_flash_attn_greater_or_equal_2_10
 
 from .configuration_mira import MIRAConfig
@@ -1558,3 +1558,81 @@ class MIRAForPrediction(MIRAPreTrainedModel, MIRAGenerationMixin):
                 tuple(past_state.index_select(0, beam_idx.to(past_state.device)) for past_state in layer_past),
             )
         return reordered_past
+
+
+class MIRAForClassification(MIRAPreTrainedModel):
+    """MIRA model for signal classification (e.g., AFib detection, disease screening).
+
+    Uses mean pooling over the last layer hidden states followed by a linear classification head.
+    """
+
+    def __init__(self, config: MIRAConfig, num_classes: int = None):
+        super().__init__(config)
+        if num_classes is not None:
+            config.num_classes = num_classes
+        self.num_classes = config.num_classes
+        self.model = MIRAModel(config)
+        self.score = nn.Linear(config.hidden_size, self.num_classes, bias=False)
+        self.post_init()
+
+    def forward(
+        self,
+        input_ids: torch.FloatTensor = None,
+        time_values: Optional[torch.FloatTensor] = None,
+        attention_mask: Optional[torch.Tensor] = None,
+        position_ids: Optional[torch.LongTensor] = None,
+        past_key_values: Optional[List[torch.FloatTensor]] = None,
+        inputs_embeds: Optional[torch.FloatTensor] = None,
+        labels: Optional[torch.LongTensor] = None,
+        use_cache: Optional[bool] = None,
+        output_attentions: Optional[bool] = None,
+        output_hidden_states: Optional[bool] = None,
+        return_dict: Optional[bool] = None,
+    ):
+        return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        outputs = self.model(
+            input_ids=input_ids,
+            time_values=time_values,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            past_key_values=past_key_values,
+            inputs_embeds=inputs_embeds,
+            use_cache=use_cache,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+            return_dict=True,
+        )
+
+        hidden_states = outputs.last_hidden_state  # [B, L, D]
+
+        # Mean pooling with attention mask
+        if attention_mask is not None:
+            mask = attention_mask.unsqueeze(-1).expand(hidden_states.size())
+            pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
+        else:
+            pooled = hidden_states.mean(dim=1)  # [B, D]
+
+        logits = self.score(pooled)  # [B, num_classes]
+
+        loss = None
+        if labels is not None:
+            if self.num_classes == 2:
+                # Binary: use single-logit BCEWithLogitsLoss (positive class logit)
+                loss_fct = nn.BCEWithLogitsLoss()
+                loss = loss_fct(logits[:, -1].float(), labels.view(-1).float())
+            else:
+                loss_fct = nn.CrossEntropyLoss()
+                loss = loss_fct(logits.view(-1, self.num_classes).float(), labels.view(-1).long())
+
+        if not return_dict:
+            output = (logits,) + outputs[1:]
+            return (loss,) + output if loss is not None else output
+
+        return SequenceClassifierOutputWithPast(
+            loss=loss,
+            logits=logits,
+            past_key_values=outputs.past_key_values,
+            hidden_states=outputs.hidden_states,
+            attentions=outputs.attentions,
+        )
