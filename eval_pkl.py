@@ -243,9 +243,10 @@ def evaluate_batch(model, seq_list, time_list, C, P, device):
             continue
         p = pred[i].squeeze(-1)
         g = gt[i].squeeze(-1)
-        rmse = torch.sqrt(F.mse_loss(p, g)).item()
+        mse = F.mse_loss(p, g).item()
+        rmse = torch.sqrt(torch.tensor(mse)).item()
         mae = F.l1_loss(p, g).item()
-        results.append((p.cpu(), g.cpu(), rmse, mae))
+        results.append((p.cpu(), g.cpu(), rmse, mae, mse))
 
     return results
 
@@ -256,7 +257,7 @@ def rolling_eval(model, seq_list, time_list, settings, device, batch_size=64, vi
     total_seqs = len(seq_list)
 
     for C, P in settings:
-        rmses, maes = [], []
+        rmses, maes, mses = [], [], []
         viz_count = 0
         viz_preds, viz_gts, viz_contexts = [], [], []
         skipped = 0
@@ -279,9 +280,10 @@ def rolling_eval(model, seq_list, time_list, settings, device, batch_size=64, vi
                 if res is None:
                     skipped += 1
                     continue
-                pred, gt, rmse, mae = res
+                pred, gt, rmse, mae, mse = res
                 rmses.append(rmse)
                 maes.append(mae)
+                mses.append(mse)
 
                 if viz_count < 5 and viz_dir:
                     viz_preds.append(pred.numpy())
@@ -291,24 +293,27 @@ def rolling_eval(model, seq_list, time_list, settings, device, batch_size=64, vi
 
         avg_rmse = np.mean(rmses) if rmses else float("nan")
         avg_mae = np.mean(maes) if maes else float("nan")
+        avg_mse = np.mean(mses) if mses else float("nan")
 
         results[(C, P)] = {
             "rmse": round(avg_rmse, 6),
             "mae": round(avg_mae, 6),
+            "mse": round(avg_mse, 6),
             "n": len(rmses),
             "skipped": skipped,
             "all_rmse": [round(r, 6) for r in rmses],
             "all_mae": [round(m, 6) for m in maes],
+            "all_mse": [round(m, 6) for m in mses],
         }
         if HAS_TQDM:
             tqdm.write(
                 f"  {C}->{P:3d} | N={len(rmses):5d}/{total_seqs} "
-                f"(skip={skipped}) | RMSE={avg_rmse:.4f} | MAE={avg_mae:.4f}"
+                f"(skip={skipped}) | RMSE={avg_rmse:.4f} | MAE={avg_mae:.4f} | MSE={avg_mse:.4f}"
             )
         else:
             print(
                 f"  {C}->{P:3d} | N={len(rmses):5d}/{total_seqs} "
-                f"(skip={skipped}) | RMSE={avg_rmse:.4f} | MAE={avg_mae:.4f}"
+                f"(skip={skipped}) | RMSE={avg_rmse:.4f} | MAE={avg_mae:.4f} | MSE={avg_mse:.4f}"
             )
 
         # Visualization
@@ -405,7 +410,7 @@ def main():
     print("\n===== FINAL SUMMARY =====")
     for (C, P), info in results.items():
         skip_str = f" (skipped {info['skipped']})" if info.get('skipped', 0) > 0 else ""
-        print(f"  {C:4d}->{P:4d}: RMSE={info['rmse']:.4f}, MAE={info['mae']:.4f}, N={info['n']}{skip_str}")
+        print(f"  {C:4d}->{P:4d}: RMSE={info['rmse']:.4f}, MAE={info['mae']:.4f}, MSE={info['mse']:.4f}, N={info['n']}{skip_str}")
 
     # Save results
     summary = {}
@@ -413,6 +418,7 @@ def main():
         summary[f"{C}->{P}"] = {
             "rmse": info["rmse"],
             "mae": info["mae"],
+            "mse": info["mse"],
             "n": info["n"],
             "skipped": info.get("skipped", 0),
         }
