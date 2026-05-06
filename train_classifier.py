@@ -11,6 +11,7 @@ Usage:
 """
 import os
 import sys
+from functools import partial
 import torch
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -43,10 +44,10 @@ FREEZE_BACKBONE = False
 MAX_LENGTH = 512
 
 # Training hyperparameters
-LEARNING_RATE = 1e-5
-NUM_EPOCHS = 3
-MICRO_BATCH_SIZE = 16
-GRADIENT_ACCUMULATION = 2
+LEARNING_RATE = 5e-5
+NUM_EPOCHS = 10
+MICRO_BATCH_SIZE = 64
+GRADIENT_ACCUMULATION = 4
 
 # Train/eval split ratio
 TRAIN_RATIO = 0.8
@@ -104,6 +105,7 @@ def main():
         print(f"Full fine-tuning. Total params: {total / 1e6:.2f}M")
 
     model = model.to(device)
+    model = torch.compile(model, dynamic=True)
 
     # --- Training args ---
     training_args = MIRATrainingArguments(
@@ -128,7 +130,8 @@ def main():
         adam_beta1=0.9,
         adam_beta2=0.95,
         adam_epsilon=1e-8,
-        dataloader_num_workers=2,
+        dataloader_num_workers=8,
+        dataloader_pin_memory=True,
         seed=SEED,
         data_seed=SEED,
         ddp_find_unused_parameters=True,
@@ -143,7 +146,7 @@ def main():
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        data_collator=classification_collate_fn,
+        data_collator=partial(classification_collate_fn, max_length=MAX_LENGTH),
     )
 
     print("\nStarting training...")

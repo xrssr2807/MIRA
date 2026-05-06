@@ -15,7 +15,7 @@ from torch import nn
 import torch.nn.functional as F
 from transformers import PreTrainedModel, Cache, DynamicCache, StaticCache
 from transformers.activations import ACT2FN
-from transformers.modeling_attn_mask_utils import _prepare_4d_causal_attention_mask
+from transformers.modeling_attn_mask_utils import _prepare_4d_causal_attention_mask, _prepare_4d_attention_mask
 from transformers.modeling_outputs import MoeModelOutputWithPast, MoeCausalLMOutputWithPast, SequenceClassifierOutputWithPast
 from transformers.utils import logging, is_flash_attn_2_available, is_flash_attn_greater_or_equal_2_10
 
@@ -925,6 +925,7 @@ class MIRAModel(MIRAPreTrainedModel):
             output_attentions: Optional[bool] = None,
             output_hidden_states: Optional[bool] = None,
             return_dict: Optional[bool] = None,
+            is_causal: Optional[bool] = True,
     ) -> Union[Tuple, MoeModelOutputWithPast]:
         # input_ids is the input of time series, its shape is [batch_size, seq_len, input_size]
         output_attentions = output_attentions if output_attentions is not None else self.config.output_attentions
@@ -987,15 +988,22 @@ class MIRAModel(MIRAPreTrainedModel):
             inputs_embeds = self.embed_layer(input_ids)
 
         # --- Attention Mask ---
-        # Uses HF utility to create 4D causal mask. Mask includes past length.
-        # Note: time_values is not used here, mask is based on sequence structure/padding
-        attention_mask = _prepare_4d_causal_attention_mask(
-            attention_mask,
-            (batch_size, seq_length),
-            inputs_embeds,
-            past_key_values_length,
-            sliding_window=None,
-        )
+        # When is_causal=True: causal mask (each token sees only past)
+        # When is_causal=False: bidirectional mask (each token sees all tokens)
+        if is_causal:
+            attention_mask = _prepare_4d_causal_attention_mask(
+                attention_mask,
+                (batch_size, seq_length),
+                inputs_embeds,
+                past_key_values_length,
+                sliding_window=None,
+            )
+        else:
+            attention_mask = _prepare_4d_attention_mask(
+                attention_mask,
+                inputs_embeds.dtype,
+                target_length=None,
+            )
 
         hidden_states = inputs_embeds
 
@@ -1590,8 +1598,12 @@ class MIRAForClassification(MIRAPreTrainedModel):
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
+        is_causal: Optional[bool] = False,
     ):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
+
+        # Store original 2D mask for pooling (before model converts it to 4D)
+        original_attention_mask = attention_mask
 
         outputs = self.model(
             input_ids=input_ids,
@@ -1604,13 +1616,14 @@ class MIRAForClassification(MIRAPreTrainedModel):
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=True,
+            is_causal=is_causal,
         )
 
         hidden_states = outputs.last_hidden_state  # [B, L, D]
 
-        # Mean pooling with attention mask
-        if attention_mask is not None:
-            mask = attention_mask.unsqueeze(-1).expand(hidden_states.size())
+        # Mean pooling with original 2D attention mask
+        if original_attention_mask is not None:
+            mask = original_attention_mask.unsqueeze(-1).expand(hidden_states.size())
             pooled = (hidden_states * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1e-9)
         else:
             pooled = hidden_states.mean(dim=1)  # [B, D]

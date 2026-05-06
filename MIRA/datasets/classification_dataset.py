@@ -148,13 +148,15 @@ class PPGClassificationDataset(Dataset):
         return self.index[idx][1]
 
 
-def classification_collate_fn(batch):
+def classification_collate_fn(batch, max_length=None):
     """Pad variable-length sequences and create attention masks for classification."""
     batch = [b for b in batch if b is not None]
     if not batch:
         return None
 
     max_len = max(len(b["input_ids"]) for b in batch)
+    if max_length is not None and max_len > max_length:
+        max_len = max_length
 
     input_ids_list = []
     time_values_list = []
@@ -163,12 +165,23 @@ def classification_collate_fn(batch):
 
     for item in batch:
         L = len(item["input_ids"])
-        pad_len = max_len - L
-        pad_time = float(item["time_values"][-1]) if L > 0 else 0.0
+        if max_length is not None and L > max_length:
+            seq = item["input_ids"][:max_length]
+            time = item["time_values"][:max_length]
+            mask = np.ones(max_length, dtype=np.int64)
+            pad_len = 0
+        else:
+            seq = item["input_ids"]
+            time = item["time_values"]
+            pad_len = max_len - L
+            pad_time = float(item["time_values"][-1]) if L > 0 else 0.0
+            seq = np.pad(seq, (0, pad_len), constant_values=0)
+            time = np.pad(time, (0, pad_len), constant_values=pad_time)
+            mask = np.pad(np.ones(L, dtype=np.int64), (0, pad_len), constant_values=0)
 
-        input_ids_list.append(np.pad(item["input_ids"], (0, pad_len), constant_values=0))
-        time_values_list.append(np.pad(item["time_values"], (0, pad_len), constant_values=pad_time))
-        attention_mask_list.append(np.pad(np.ones(L, dtype=np.int64), (0, pad_len), constant_values=0))
+        input_ids_list.append(seq)
+        time_values_list.append(time)
+        attention_mask_list.append(mask)
         labels_list.append(item["labels"])
 
     return {
