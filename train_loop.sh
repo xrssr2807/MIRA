@@ -2,8 +2,8 @@
 # Auto-restart training loop - resumes from latest checkpoint on crash
 
 OUTPUT_DIR="${MIRA_OUTPUT_DIR:-ppg_output}"
-MODEL_PATH_DEFAULT="/home/bml/storage/mnt/v-044d0fb740b04ad3/org/WFM/TimeMoE-50M/"
-DATA_PATH="${MIRA_DATA_DIR:-ppg_full}"
+MODEL_PATH_DEFAULT="/root/model"
+DATA_PATH="${MIRA_DATA_DIR:-/root/processed_dataset}"
 MAX_RESTARTS=10
 RESTART_COUNT=0
 
@@ -43,7 +43,7 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
         --max_length 2048 \
         --normalization_method zero \
         --attn_implementation eager \
-        --micro_batch_size 64 \
+        --micro_batch_size 32 \
         --global_batch_size 512 \
         --precision bf16 \
         --save_strategy steps \
@@ -58,7 +58,7 @@ while [ $RESTART_COUNT -lt $MAX_RESTARTS ]; do
         --weight_decay $WEIGHT_DECAY \
         --learning_rate $LEARNING_RATE \
         --num_train_epochs 1.0 \
-        --dataloader_num_workers 4 \
+        --dataloader_num_workers 2 \
         --adam_beta2 $ADAM_BETA2
 
     EXIT_CODE=$?

@@ -18,6 +18,3 @@ scikit-learn
 
 # Visualization
 matplotlib
-
-# Optional: Flash Attention for faster training (requires CUDA)
-# flash-attn  # pip install flash-attn --no-build-isolation

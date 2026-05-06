@@ -1,17 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-MIRA Model Fine-tuning Script — A800 80GB Optimized.
+MIRA Model Fine-tuning Script — RTX 4090 24GB Optimized.
 
-Goal: 85%+ GPU compute & memory utilization.
+Goal: High GPU compute & memory utilization on consumer GPU.
 
 Key optimizations:
-1. Massive micro_batch_size to saturate 80GB VRAM
+1. micro_batch_size tuned for 24GB VRAM
 2. BF16 for Tensor Core acceleration
-3. torch.compile for fused kernel generation
-4. High dataloader workers to keep GPU fed
-5. Gradient checkpointing for extra memory headroom → larger batch
-6. cudnn benchmark enabled
+3. Gradient checkpointing to trade compute for memory
+4. Adequate dataloader workers to keep GPU fed
+5. cudnn benchmark enabled
 
 Usage:
     python finetune.py
@@ -28,13 +27,13 @@ from mira.runner import MIRARunner
 # ============================================================
 
 # 预训练模型路径（包含 model.safetensors + config.json）
-MODEL_PATH = "ppg_output/checkpoint-7000"
+MODEL_PATH = "/root/model"
 
 # 微调输出路径
 OUTPUT_PATH = "ppg_output/finetune_v1"
 
 # 下游微调数据路径（PKL 文件目录 / JSONL 文件 / memmap 目录）
-DATA_PATH = "ppg_full"
+DATA_PATH = "/root/processed_dataset"
 
 # max_length 越小，batch size 可以越大。
 # 256 是默认值，如果你的数据允许，可以降到 128 来进一步提高 batch size。
@@ -45,22 +44,22 @@ LEARNING_RATE = 1e-5
 NUM_EPOCHS = 3
 
 # ============================================================
-#  A800 80GB 极限优化参数
+#  RTX 4090 24GB 优化参数
 # ============================================================
 
 # --- Batch Size 计算 ---
-# A800 80GB + BF16 + max_length=256:
+# RTX 4090 24GB + BF16 + max_length=256 + gradient_checkpointing:
 #   模型权重 ~1GB (bf16)
 #   Adam 优化器状态 ~2GB (fp32 master weights + 动量 + 方差)
-#   剩余 ~77GB 给 activations
+#   剩余 ~21GB 给 activations (gradient checkpointing 大幅降低)
 #   对于 32-layer, hidden=4096 的模型:
-#     max_length=256 → micro_batch_size=128 大约占 30-40GB 显存
-#     再乘 gradient_accumulation=2 → global_batch_size=256
-# 如果 max_length=128，micro_batch_size 可以推到 256-512
+#     max_length=256 + checkpointing → micro_batch_size=32 大约占 12-16GB 显存
+#     gradient_accumulation=16 → global_batch_size=512
+# 如果 max_length=128，micro_batch_size 可以推到 64
 
-MICRO_BATCH_SIZE = 128          # 单卡 micro batch，占满显存的关键参数
-GRADIENT_ACCUMULATION = 2       # 梯度累积，global = micro * accum * num_devices
-GLOBAL_BATCH_SIZE = MICRO_BATCH_SIZE * GRADIENT_ACCUMULATION  # 256 (单卡)
+MICRO_BATCH_SIZE = 32           # 单卡 micro batch，占满显存的关键参数
+GRADIENT_ACCUMULATION = 16      # 梯度累积，global = micro * accum * num_devices
+GLOBAL_BATCH_SIZE = MICRO_BATCH_SIZE * GRADIENT_ACCUMULATION  # 512 (单卡)
 
 # 如果你想测试最大 batch size，取消注释下面这行来自动调优:
 # MICRO_BATCH_SIZE = auto_tune_batch_size(MODEL_PATH, MAX_LENGTH)
@@ -113,8 +112,8 @@ TRAIN_CONFIG = {
 
     # --- 性能优化 (关键!) ---
     "gradient_checkpointing": True,   # 用计算换显存 → 允许更大的 batch size
-    "torch_compile": True,            # 融合内核，提升 20-40% 吞吐
-    "dataloader_num_workers": 8,      # 多进程预加载，保持 GPU 不空闲
+    "torch_compile": False,           # RTX 4090 上 torch.compile 可能不稳定
+    "dataloader_num_workers": 4,      # 多进程预加载，保持 GPU 不空闲
     "ddp_find_unused_parameters": True,
 
     # --- 注意力 ---
@@ -123,7 +122,7 @@ TRAIN_CONFIG = {
 
 
 def print_gpu_info():
-    """Print A800 GPU info before training."""
+    """Print RTX 4090 GPU info before training."""
     if torch.cuda.is_available():
         props = torch.cuda.get_device_properties(0)
         vram_gb = props.total_mem / 1e9

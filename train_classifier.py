@@ -26,12 +26,10 @@ from mira.trainer.hf_trainer import MIRATrainingArguments
 # ============================================================
 
 # Pre-trained model checkpoint directory (contains config.json + model.safetensors)
-# Note: from_pretrained expects a directory, not a single .safetensors file.
-# If ppg_output/model.safetensors is the final saved model, the directory is ppg_output/
-MODEL_PATH = "/home/bml/storage/MIRA/ppg_output"
+MODEL_PATH = "/root/model"
 
 # Classification training data path (PKL files with 'data' and 'label' keys)
-DATA_PATH = "/home/bml/storage/mnt/v-044d0fb740b04ad3/org/WFM/processed_dataset/data"
+DATA_PATH = "/root/processed_dataset/data"
 
 # Output directory for saved model and logs
 OUTPUT_PATH = "ppg_output/classifier_v1"
@@ -48,7 +46,7 @@ MAX_LENGTH = 512
 # Training hyperparameters
 LEARNING_RATE = 1e-5
 NUM_EPOCHS = 3
-MICRO_BATCH_SIZE = 32
+MICRO_BATCH_SIZE = 16
 GRADIENT_ACCUMULATION = 2
 
 # Train/eval split ratio
@@ -131,7 +129,7 @@ def main():
         adam_beta1=0.9,
         adam_beta2=0.95,
         adam_epsilon=1e-8,
-        dataloader_num_workers=4,
+        dataloader_num_workers=2,
         seed=SEED,
         data_seed=SEED,
         ddp_find_unused_parameters=True,
