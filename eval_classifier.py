@@ -36,8 +36,8 @@ from sklearn.metrics import (
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from mira.models.modeling_mira import MIRAForClassification, MIRAConfig
-from mira.datasets.classification_dataset import PPGClassificationDataset, classification_collate_fn
+from MIRA.models.modeling_mira import MIRAForClassification, MIRAConfig
+from MIRA.datasets.classification_dataset import PPGClassificationDataset, classification_collate_fn
 
 
 class SubsetDataset(torch.utils.data.Dataset):

@@ -3,7 +3,7 @@
 import random
 import numpy as np
 from tqdm import tqdm
-from mira.datasets.ts_dataset import TimeSeriesDataset
+from MIRA.datasets.ts_dataset import TimeSeriesDataset
 from torch.utils.data import Dataset
 from transformers.utils import logging
 from numpy.lib.stride_tricks import sliding_window_view

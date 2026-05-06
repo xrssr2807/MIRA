@@ -2,7 +2,7 @@
 # Licensed under the MIT license.
 
 import argparse
-from mira.runner import MIRARunner
+from MIRA.runner import MIRARunner
 import re
 import os
 

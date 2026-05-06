@@ -12,7 +12,7 @@ import numpy as np
 from .ts_dataset import TimeSeriesDataset
 from .general_dataset import GeneralDataset
 from .binary_dataset import BinaryDataset
-from mira.datasets.timeawared_dataset import TimeAwareJSONLDataset
+from MIRA.datasets.timeawared_dataset import TimeAwareJSONLDataset
 
 
 class MIRADataset(TimeSeriesDataset):

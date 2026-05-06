@@ -15,17 +15,17 @@ import torch.distributed as dist
 from torch.utils.data import DataLoader
 from sklearn.preprocessing import StandardScaler 
 
-from mira.datasets.mira_dataset import MIRADataset
-from mira.datasets.mira_window_dataset import MIRAWindowDataset, TimeAwareWindowDataset
-from mira.models.modeling_mira import MIRAForPrediction, MIRAConfig
-from mira.trainer.hf_trainer import MIRATrainingArguments, MIRATrainer
-from mira.utils.dist_util import get_world_size
-from mira.utils.log_util import logger, log_in_local_rank_0
+from MIRA.datasets.mira_dataset import MIRADataset
+from MIRA.datasets.mira_window_dataset import MIRAWindowDataset, TimeAwareWindowDataset
+from MIRA.models.modeling_mira import MIRAForPrediction, MIRAConfig
+from MIRA.trainer.hf_trainer import MIRATrainingArguments, MIRATrainer
+from MIRA.utils.dist_util import get_world_size
+from MIRA.utils.log_util import logger, log_in_local_rank_0
 
-from mira.datasets.timeawared_dataset import TimeAwareJSONLDataset
-from mira.datasets.timeawared_pkl_dataset import TimeAwarePKLDataset, MIRAWindowPKLDataset
-from mira.datasets.memmap_dataset import MIRADataMemmapDataset, FlatWindowDataset
-from mira.datasets.time_utils import time_aware_collate_fn
+from MIRA.datasets.timeawared_dataset import TimeAwareJSONLDataset
+from MIRA.datasets.timeawared_pkl_dataset import TimeAwarePKLDataset, MIRAWindowPKLDataset
+from MIRA.datasets.memmap_dataset import MIRADataMemmapDataset, FlatWindowDataset
+from MIRA.datasets.time_utils import time_aware_collate_fn
 
 
 class MIRARunner:

@@ -21,7 +21,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 from sklearn.preprocessing import StandardScaler
-from mira.utils.log_util import logger
+from MIRA.utils.log_util import logger
 
 
 def extract_label(label_value):

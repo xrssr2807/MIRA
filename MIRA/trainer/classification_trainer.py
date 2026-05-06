@@ -8,7 +8,7 @@ Extends MIRATrainer with compute_metrics for AUC-ROC, Precision, Recall, F1.
 
 import numpy as np
 from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score, accuracy_score
-from mira.trainer.hf_trainer import MIRATrainer
+from MIRA.trainer.hf_trainer import MIRATrainer
 
 
 class MIRAClassificationTrainer(MIRATrainer):

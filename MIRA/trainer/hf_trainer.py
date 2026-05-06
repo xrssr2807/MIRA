@@ -18,7 +18,7 @@ import transformers
 import torch
 from torch.optim.lr_scheduler import LambdaLR
 from transformers import get_scheduler
-from mira.utils.log_util import log_in_local_rank_0
+from MIRA.utils.log_util import log_in_local_rank_0
 
 
 class MIRATrainer(transformers.Trainer):

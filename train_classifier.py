@@ -16,10 +16,10 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from mira.models.modeling_mira import MIRAForClassification, MIRAConfig
-from mira.datasets.classification_dataset import PPGClassificationDataset, classification_collate_fn
-from mira.trainer.classification_trainer import MIRAClassificationTrainer
-from mira.trainer.hf_trainer import MIRATrainingArguments
+from MIRA.models.modeling_mira import MIRAForClassification, MIRAConfig
+from MIRA.datasets.classification_dataset import PPGClassificationDataset, classification_collate_fn
+from MIRA.trainer.classification_trainer import MIRAClassificationTrainer
+from MIRA.trainer.hf_trainer import MIRATrainingArguments
 
 # ============================================================
 #  Configuration — modify these for your downstream task
@@ -88,7 +88,7 @@ def main():
     model = MIRAForClassification(config, num_classes=NUM_CLASSES)
 
     # Load pre-trained backbone weights
-    from mira.models.modeling_mira import MIRAForPrediction
+    from MIRA.models.modeling_mira import MIRAForPrediction
     backbone = MIRAForPrediction.from_pretrained(MODEL_PATH, torch_dtype=torch.float32, attn_implementation='eager')
     model.model.load_state_dict(backbone.model.state_dict(), strict=True)
     del backbone

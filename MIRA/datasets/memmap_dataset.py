@@ -9,8 +9,8 @@ Global z-score normalization: one mean/std computed from ALL training data.
 import os
 import pickle
 import numpy as np
-from mira.utils.log_util import logger
-from mira.datasets.ts_dataset import TimeSeriesDataset
+from MIRA.utils.log_util import logger
+from MIRA.datasets.ts_dataset import TimeSeriesDataset
 
 
 class MIRADataMemmapDataset(TimeSeriesDataset):

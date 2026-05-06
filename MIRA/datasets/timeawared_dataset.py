@@ -10,8 +10,8 @@ from collections import Counter
 import pickle 
 import gzip
 import yaml 
-from mira.utils.log_util import logger
-from mira.datasets.ts_dataset import TimeSeriesDataset
+from MIRA.utils.log_util import logger
+from MIRA.datasets.ts_dataset import TimeSeriesDataset
 import traceback
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import random

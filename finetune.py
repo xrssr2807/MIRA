@@ -20,7 +20,7 @@ import sys
 import torch
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from mira.runner import MIRARunner
+from MIRA.runner import MIRARunner
 
 # ============================================================
 #  Configuration — 修改这里的值适配你的下游任务

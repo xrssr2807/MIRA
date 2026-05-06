@@ -14,8 +14,8 @@ import gc
 import numpy as np
 from collections import Counter
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from mira.utils.log_util import logger
-from mira.datasets.ts_dataset import TimeSeriesDataset
+from MIRA.utils.log_util import logger
+from MIRA.datasets.ts_dataset import TimeSeriesDataset
 
 
 def quantize_time(times, initial_resolution=1.0, min_resolution=1e-8, shrink_factor=10, jitter_eps=1e-8, max_iterations=20):

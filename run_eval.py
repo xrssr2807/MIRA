@@ -16,7 +16,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from mira.models.modeling_mira import MIRAForPrediction
+from MIRA.models.modeling_mira import MIRAForPrediction
 
 # Paths (override via environment variables)
 DATA_DIR = os.environ.get("MIRA_DATA_DIR", "processed_dataset/data")
