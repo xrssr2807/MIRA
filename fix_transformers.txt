@@ -1,0 +1,15 @@
+# 在服务器终端中直接复制粘贴以下内容执行：
+
+cd /root/MIRA && find . -name __pycache__ -exec rm -rf {} + 2>/dev/null && find . -name "*.pyc" -delete 2>/dev/null && python3 << 'PYEOF'
+p = 'mira/models/modeling_mira.py'
+text = open(p).read()
+text = text.replace('past_key_values = DynamicCache.from_legacy_cache(past_key_values)', 'past_key_values = DynamicCache()')
+text = text.replace('.get_usable_length(seq_length)', '.get_seq_length()')
+text = text.replace('.get_usable_length(None, self.layer_idx)', '.get_seq_length()')
+text = text.replace('.get_usable_length(kv_seq_len, self.layer_idx)', '.get_seq_length()')
+open(p, 'w').write(text)
+print('修复完成，共修复 5 处 API 调用')
+PYEOF
+
+# 修复完成后运行评估：
+python eval_classifier.py --model /root/model --data /root/processed_dataset/data --data_ratio 0.8

@@ -503,7 +503,6 @@ class MIRAAttention(nn.Module):
                     "for auto-regressive decoding with k/v caching, please make sure to initialize the attention class "
                     "with a layer index."
                 )
-            kv_seq_len += past_key_value.get_seq_length() if hasattr(past_key_value, 'get_seq_length') else past_key_value.get_usable_length(kv_seq_len, self.layer_idx)
         else:
             kv_seq_len = key_states.shape[-2]
         
