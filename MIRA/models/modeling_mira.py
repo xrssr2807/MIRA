@@ -999,11 +999,13 @@ class MIRAModel(MIRAPreTrainedModel):
                 sliding_window=None,
             )
         else:
-            attention_mask = _prepare_4d_attention_mask(
-                attention_mask,
-                inputs_embeds.dtype,
-                target_length=None,
-            )
+            # Bidirectional: expand 2D mask [B, L] to 4D [B, 1, L, L]
+            # mask has 1=valid, 0=padding. We need 0.0 for valid, large negative for padding.
+            mask_2d = attention_mask[:, None, None, :]  # [B, 1, 1, L]
+            mask_4d = (1.0 - mask_2d.float()) * torch.finfo(inputs_embeds.dtype).min
+            # Broadcast to [B, 1, L, L] — all query positions see the same key mask
+            mask_4d = mask_4d.expand(batch_size, 1, seq_length, seq_length)
+            attention_mask = mask_4d
 
         hidden_states = inputs_embeds
 
