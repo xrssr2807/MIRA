@@ -40,6 +40,35 @@ from mira.models.modeling_mira import MIRAForClassification, MIRAConfig
 from mira.datasets.classification_dataset import PPGClassificationDataset, classification_collate_fn
 
 
+class SubsetDataset(torch.utils.data.Dataset):
+    """Wrap a Subset's indices so dataset-level stats (label distribution) are computed correctly."""
+    def __init__(self, full_dataset, indices):
+        self.full = full_dataset
+        self.indices = indices
+        self.labels = [full_dataset.labels[i] for i in indices]
+        self.raw_labels = [full_dataset.raw_labels[i] for i in indices]
+
+    def __len__(self):
+        return len(self.indices)
+
+    def __getitem__(self, idx):
+        return self.full[self.indices[idx]]
+
+
+def load_data_split(data_path, split="train", ratio=0.8):
+    """Load PPGClassificationDataset and return (train, eval) split subsets.
+
+    Uses sequential split: first `ratio` for training, rest for evaluation.
+    """
+    full = PPGClassificationDataset(data_path, normalization_method="zero")
+    cut = int(len(full) * ratio)
+    if split == "train":
+        indices = list(range(cut))
+    else:
+        indices = list(range(cut, len(full)))
+    return SubsetDataset(full, indices)
+
+
 def evaluate(model, dataloader, device):
     """Run inference and collect all logits and labels."""
     model.eval()
@@ -177,6 +206,8 @@ def main():
     parser.add_argument('--output', type=str, default='eval_results', help='Output directory')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for inference')
     parser.add_argument('--num_classes', type=int, default=2, help='Number of classes')
+    parser.add_argument('--data_ratio', type=float, default=0.8,
+                        help='Train/test split ratio. First `ratio` is train, rest is test (default: 0.8 = use last 20%% as test)')
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -196,9 +227,9 @@ def main():
     ).to(device)
     print(f"Model loaded. Parameters: {sum(p.numel() for p in model.parameters()) / 1e6:.1f}M\n")
 
-    # Load dataset
+    # Load dataset (last (1-ratio) portion as test)
     print("Loading dataset...")
-    dataset = PPGClassificationDataset(args.data, normalization_method="zero")
+    dataset = load_data_split(args.data, split="test", ratio=args.data_ratio)
     print(f"Total samples: {len(dataset)}\n")
 
     dataloader = DataLoader(

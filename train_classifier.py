@@ -12,7 +12,6 @@ Usage:
 import os
 import sys
 import torch
-from torch.utils.data import random_split
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -76,10 +75,10 @@ def main():
     full_dataset = PPGClassificationDataset(DATA_PATH, normalization_method="zero")
     print(f"Total samples: {len(full_dataset)}")
 
-    # 80/20 train/eval split
+    # Sequential 80/20 split: first 80% for training, last 20% for evaluation
     train_size = int(len(full_dataset) * TRAIN_RATIO)
-    eval_size = len(full_dataset) - train_size
-    train_dataset, eval_dataset = random_split(full_dataset, [train_size, eval_size], generator=torch.Generator().manual_seed(SEED))
+    train_dataset = torch.utils.data.Subset(full_dataset, range(train_size))
+    eval_dataset = torch.utils.data.Subset(full_dataset, range(train_size, len(full_dataset)))
     print(f"Train: {len(train_dataset)}, Eval: {len(eval_dataset)}")
 
     # --- Load model ---
