@@ -89,6 +89,7 @@ def evaluate(model, dataloader, device):
                 time_values=time_values,
                 attention_mask=attention_mask,
                 labels=None,
+                use_cache=False,
                 return_dict=True,
             )
             all_logits.append(outputs.logits.cpu().numpy())
@@ -115,7 +116,7 @@ def compute_metrics(logits, labels):
         "precision": float(precision_score(labels, preds, zero_division=0)),
         "recall": float(recall_score(labels, preds, zero_division=0)),
         "f1": float(f1_score(labels, preds, zero_division=0)),
-        "auc_roc": float(roc_auc_score(labels, pos_probs)) if len(unique) > 1 else 0.0,
+        "auc_roc": float(roc_auc_score(labels, probs)) if len(unique) > 1 else 0.0,
         "n_samples": int(len(labels)),
         "n_positive": int((labels == 1).sum()),
         "n_negative": int((labels == 0).sum()),
@@ -125,7 +126,7 @@ def compute_metrics(logits, labels):
     cm = confusion_matrix(labels, preds)
     metrics["confusion_matrix"] = cm.tolist()
 
-    return metrics, preds, pos_probs
+    return metrics, preds, probs
 
 
 def plot_roc_curve(labels, probs, output_dir):
